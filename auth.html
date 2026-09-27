@@ -3,107 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Partner Dashboard - AVSK Portal</title>
+    <title>Login / Register - AVSK Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 font-sans">
-    <header class="bg-blue-600 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">AVSK Partner Dashboard</h1>
-            <div class="space-x-4 flex items-center">
-                <a href="index.html" class="text-white hover:underline text-sm">Home</a>
-                <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">Logout</button>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+        <h2 id="form-title" class="text-2xl font-bold text-center text-slate-800 mb-6">Partner Login</h2>
+        
+        <form id="auth-form" onsubmit="handleAuth(event)">
+            <div id="name-field" class="mb-4 hidden">
+                <label class="block text-slate-700 text-sm font-semibold mb-2">Full Name</label>
+                <input type="text" id="fullname" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your name">
             </div>
-        </div>
-    </header>
+            <div class="mb-4">
+                <label class="block text-slate-700 text-sm font-semibold mb-2">Email Address</label>
+                <input type="email" id="email" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your email">
+            </div>
+            <div class="mb-6">
+                <label class="block text-slate-700 text-sm font-semibold mb-2">Password</label>
+                <input type="password" id="password" required class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter password">
+            </div>
+            <button type="submit" id="submit-btn" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">Login</button>
+        </form>
 
-    <main class="max-w-7xl mx-auto px-4 py-10">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8 flex justify-between items-center">
-            <div>
-                <h2 id="welcome-msg" class="text-2xl font-bold text-slate-800 mb-1">Welcome, Partner! 👋</h2>
-                <p class="text-slate-600 text-sm">Share your product referral links below to earn commissions.</p>
-            </div>
-            <div>
-                <a href="admin.html" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-700">⚙️ Admin / Wallet Panel</a>
-            </div>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-2">💳 Wallet Balance</h3>
-                <p id="wallet-balance" class="text-3xl font-extrabold text-green-600">₹0.00</p>
-                <p class="text-xs text-slate-500 mt-1">Updates when admin approves leads</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-2">📊 Total Clicks</h3>
-                <p id="total-clicks" class="text-3xl font-extrabold text-blue-600">0</p>
-                <p class="text-xs text-slate-500 mt-1">On your links</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-2">✅ Converted Leads</h3>
-                <p id="total-leads" class="text-3xl font-extrabold text-purple-600">0</p>
-                <p class="text-xs text-slate-500 mt-1">Successful payouts</p>
-            </div>
-        </div>
-
-        <h3 class="text-2xl font-bold text-slate-800 mb-6">Your Product Referral Links & Commissions</h3>
-        <div id="partner-products-grid" class="grid md:grid-cols-2 gap-6">
-            <!-- Products loaded dynamically -->
-        </div>
-    </main>
+        <p class="text-center text-sm text-slate-600 mt-4">
+            <span id="toggle-text">Don't have an account?</span> 
+            <button onclick="toggleMode()" class="text-blue-600 font-semibold hover:underline">Register here</button>
+        </p>
+        <p class="text-center mt-2"><a href="index.html" class="text-slate-500 text-sm hover:underline">← Back to Home</a></p>
+    </div>
 
     <script>
-        if(localStorage.getItem('avsk_logged_in') !== 'true') {
-            window.location.href = 'auth.html';
+        let isLogin = true;
+        function toggleMode() {
+            isLogin = !isLogin;
+            document.getElementById('form-title').innerText = isLogin ? "Partner Login" : "Partner Registration";
+            document.getElementById('submit-btn').innerText = isLogin ? "Login" : "Register";
+            document.getElementById('name-field').classList.toggle('hidden', isLogin);
+            document.getElementById('toggle-text').innerText = isLogin ? "Don't have an account?" : "Already have an account?";
         }
 
-        const userData = JSON.parse(localStorage.getItem('avsk_user') || '{"name":"Partner", "email":"partner@avsk.com"}');
-        document.getElementById('welcome-msg').innerText = `Welcome, ${userData.name}! 👋`;
-        
-        // Fetch user wallet, default starts at 0.00
-        const userWallets = JSON.parse(localStorage.getItem('avsk_user_wallets') || '{}');
-        const currentBal = userWallets[userData.email] !== undefined ? userWallets[userData.email] : 0.00;
-        document.getElementById('wallet-balance').innerText = `₹${parseFloat(currentBal).toFixed(2)}`;
-
-        const defaultProducts = [
-            { name: "Personal Loan", commission: "₹2,500 per lead", link: "auth.html" },
-            { name: "Instant Credit Card", commission: "₹1,000 per approval", link: "auth.html" },
-            { name: "Zero Balance Savings Account", commission: "₹300 per account", link: "auth.html" }
-        ];
-        let savedProducts = JSON.parse(localStorage.getItem('avsk_products') || JSON.stringify(defaultProducts));
-
-        const grid = document.getElementById('partner-products-grid');
-        grid.innerHTML = '';
-
-        savedProducts.forEach((prod, index) => {
-            const userRefCode = userData.email.split('@')[0].toUpperCase();
-            const personalLink = `https://myavsk.github.io/avsk-portal/auth.html?ref=${userRefCode}_P${index+1}`;
-
-            grid.innerHTML += `
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="text-xl font-bold text-slate-800">${prod.name}</h4>
-                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">${prod.commission}</span>
-                    </div>
-                    <p class="text-slate-600 text-xs mb-4">Share this unique link to earn commission upon successful completion.</p>
-                    <div class="flex gap-2">
-                        <input type="text" readonly id="link-${index}" class="w-full px-3 py-2 border rounded-lg bg-slate-50 text-slate-600 text-xs" value="${personalLink}">
-                        <button onclick="copyToClipboard('link-${index}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">Copy</button>
-                    </div>
-                </div>
-            `;
-        });
-
-        function copyToClipboard(elementId) {
-            const input = document.getElementById(elementId);
-            input.select();
-            navigator.clipboard.writeText(input.value);
-            alert('Referral link copied to clipboard!');
-        }
-
-        function logout() {
-            localStorage.removeItem('avsk_logged_in');
-            window.location.href = 'auth.html';
+        function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            
+            if(!isLogin) {
+                const name = document.getElementById('fullname').value;
+                localStorage.setItem('avsk_user', JSON.stringify({ name, email }));
+                alert('Registration successful! Please login.');
+                toggleMode();
+            } else {
+                localStorage.setItem('avsk_logged_in', 'true');
+                // Ensure user data exists
+                let existingUser = JSON.parse(localStorage.getItem('avsk_user') || '{}');
+                if(!existingUser.email || existingUser.email !== email) {
+                    localStorage.setItem('avsk_user', JSON.stringify({ name: email.split('@')[0], email: email }));
+                }
+                alert('Login successful!');
+                window.location.href = 'dashboard.html';
+            }
         }
     </script>
 </body>
