@@ -1,12 +1,10 @@
 const bcrypt = require('bcryptjs');
 const { getUserByEmail, createUser, ensureAdminSeed } = require('./db');
 
-ensureAdminSeed();
-
-const adminEmail = (process.env.ADMIN_EMAIL || 'admin@avsk.com').toLowerCase();
-const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@12345';
-const existing = getUserByEmail(adminEmail);
-if (!existing) {
-  createUser({ email: adminEmail, name: 'AVSK Admin', password: adminPassword, role: 'admin', referralCode: 'admin', profile: {}, kyc: { verified: true, status: 'verified' } });
-  console.log(`Seeded admin user: ${adminEmail} / ${adminPassword}`);
+// The API startup seed is intentionally disabled unless an explicit password is supplied.
+// Use `npm run seed` after setting ADMIN_EMAIL and ADMIN_PASSWORD in a private .env file.
+if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD.length >= 12) {
+  ensureAdminSeed();
 }
+
+module.exports = { bcrypt, getUserByEmail, createUser };
