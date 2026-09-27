@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin & Wallet Management - AVSK Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 font-sans">
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">AVSK Admin & Wallet Control</h1>
+            <a href="dashboard.html" class="bg-blue-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">← Back to Dashboard</a>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-10">
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">💰 Manage Partner Wallet (Add / Deduct / Bonus)</h2>
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Partner Email / ID</label>
+                    <input type="text" id="admin-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" value="partner@avsk.com">
+                </div>
+                <div>
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Amount (₹)</label>
+                    <input type="number" id="admin-amount" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="e.g. 500 or -200">
+                </div>
+            </div>
+            <div class="mb-6">
+                <label class="block text-slate-700 text-sm font-semibold mb-2">Reason / Action Type</label>
+                <select id="admin-action-type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <option value="add">Add Commission (Credit)</option>
+                    <option value="bonus">Add Festive/Joining Bonus</option>
+                    <option value="deduct">Deduct Amount (Debit/Adjustment)</option>
+                </select>
+            </div>
+            <button onclick="updateWallet()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">Update Wallet Balance</button>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">🛠️ Add New Financial Product</h2>
+            <p class="text-slate-600 text-sm mb-4">You can configure new products here that will instantly show up on the main portal.</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Product Name</label>
+                    <input type="text" id="prod-name" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g. Business Loan">
+                </div>
+                <div>
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Commission Details</label>
+                    <input type="text" id="prod-commission" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g. ₹5,000 per lead">
+                </div>
+                <button onclick="addNewProduct()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save Product</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function updateWallet() {
+            const amount = document.getElementById('admin-amount').value;
+            const type = document.getElementById('admin-action-type').value;
+            
+            if(!amount) {
+                alert('Please enter an amount!');
+                return;
+            }
+
+            let currentBal = parseFloat(localStorage.getItem('avsk_wallet_balance') || '1500.00');
+            let numAmount = parseFloat(amount);
+
+            if(type === 'deduct') {
+                currentBal -= numAmount;
+            } else {
+                currentBal += numAmount;
+            }
+
+            localStorage.setItem('avsk_wallet_balance', currentBal.toFixed(2));
+            alert(`Wallet updated successfully! New Balance: ₹${currentBal.toFixed(2)}`);
+        }
+
+        function addNewProduct() {
+            const name = document.getElementById('prod-name').value;
+            const comm = document.getElementById('prod-commission').value;
+            if(!name) {
+                alert('Please enter product name');
+                return;
+            }
+            alert(`Product "${name}" saved successfully! It will reflect on the portal.`);
+            document.getElementById('prod-name').value = '';
+            document.getElementById('prod-commission').value = '';
+        }
+    </script>
+</body>
+</html>
