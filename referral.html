@@ -1,25 +1,65 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK | Referral capture</title><style>
-:root{--p:#2563eb;--ink:#0f172a;--muted:#64748b}*{box-sizing:border-box}body{margin:0;background:#f8fafc;color:var(--ink);font:15px system-ui,sans-serif}header{background:#fff;border-bottom:1px solid #e2e8f0}.wrap{max-width:900px;margin:auto;padding:20px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;box-shadow:0 6px 26px #0f172a08}.btn{background:var(--p);color:#fff;border:0;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:700}.muted{color:var(--muted)}.field{display:block;margin:10px 0}label{font-weight:700;margin-bottom:6px}input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px}
-</style></head><body><header><div class="wrap"><a href="index.html">← Back to home</a></div></header><main class="wrap"><div class="card" id="card"><h2 id="productName"></h2><p class="muted" id="productComm"></p><p class="muted">You were referred by <strong id="refName"></strong>. Please submit your details to proceed. You will be redirected to the provider's page after submission.</p><form id="leadForm"><div class="field"><label>Full name</label><input id="cname" required></div><div class="field"><label>Email</label><input id="cemail" type="email" required></div><div class="field"><label>Phone</label><input id="cphone" inputmode="numeric" required></div><div class="field"><label>City</label><input id="ccity"></div><div style="margin-top:12px"><button class="btn" type="submit">Submit & Continue</button></div></form><div id="msg" class="muted" style="margin-top:12px"></div></div></main><script>
-const U='avsk_users',P='avsk_products';const $=s=>document.querySelector(s);function read(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}function save(k,v){localStorage.setItem(k,JSON.stringify(v))}function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}
-// parse params
-const params=new URLSearchParams(location.search);const ref=params.get('ref');const productId=params.get('product');const products=read(P,[]);const users=read(U,{});
-if(!ref||!productId){$('#card').innerHTML='<h3>Invalid referral link</h3><p class="muted">This referral link is incomplete. Please contact the partner who shared it.</p>';throw new Error('invalid link')}
-const product=products.find(p=>p.id===productId);
-if(!product){$('#card').innerHTML='<h3>Unknown product</h3><p class="muted">The product referenced by this link is not available.</p>';throw new Error('unknown product')}
-// find referrer
-const refEmail=Object.keys(users).find(e=>users[e].referralCode===ref);
-if(!refEmail){$('#card').innerHTML='<h3>Unknown referrer</h3><p class="muted">The referring partner was not found. The lead cannot be recorded.</p>';throw new Error('unknown referrer')}
-const refUser=users[refEmail];$('#productName').textContent=product.name;$('#productComm').textContent=product.commissionLabel||('₹'+Number(product.commission||0));$('#refName').textContent=refUser.name||refUser.email;
-// increment click count (anonymous visitor)
-refUser.clicks=(refUser.clicks||0)+1;users[refEmail]=refUser;save(U,users);
-// form submit leads
-$('#leadForm').onsubmit=e=>{e.preventDefault();const name=$('#cname').value.trim();const email=$('#cemail').value.trim().toLowerCase();const phone=$('#cphone').value.trim();const city=$('#ccity').value.trim();if(!name||!email||!phone){$('#msg').textContent='Please provide name, email and phone.';return}const lead={id:crypto.randomUUID(),name,email,phone,city,productId,productName:product.name,createdAt:Date.now(),status:'pending',referrer:refEmail};
-// append lead to referrer record
-const us=read(U,{});us[refEmail].leads=(us[refEmail].leads||0)+1;us[refEmail].leadsList=us[refEmail].leadsList||[];us[refEmail].leadsList.push(lead);save(U,us);
-// add a basic transaction record (pending 0) for traceability
-us[refEmail].transactions=us[refEmail].transactions||[];us[refEmail].transactions.push({date:Date.now(),amount:0,description:'Lead submitted: '+product.name,meta:{leadId:lead.id}});save(U,us);
-// show message then redirect to product.url
-$('#msg').textContent='Thank you — you will be redirected to the provider now.';setTimeout(()=>{try{location.href=product.url}else{location.href='index.html'}},900)}
-</script></main></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK — Referral capture</title>
+<style>
+:root{--p:#2563eb;--muted:#64748b}
+*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f8fafc;margin:0;color:#0f172a}
+.wrap{max-width:900px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:12px;padding:16px;border:1px solid #e6eefb}
+.btn{background:var(--p);color:#fff;padding:8px 12px;border-radius:8px;border:0}
+.field{margin-top:10px}
+label{display:block;font-weight:700}
+input{width:100%;padding:10px;border-radius:8px;border:1px solid #dbeafe}
+.small{color:var(--muted)}
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card" id="card">
+      <h2 id="productName"></h2>
+      <div class="small" id="productComm"></div>
+      <p class="small">You were referred by <strong id="refName"></strong>. Submit your details — you will be redirected to the provider's page after submission.</p>
+      <form id="leadForm">
+        <div class="field"><label>Full name</label><input id="cname" required /></div>
+        <div class="field"><label>Email</label><input id="cemail" type="email" required /></div>
+        <div class="field"><label>Phone</label><input id="cphone" inputmode="numeric" required /></div>
+        <div class="field"><label>City</label><input id="ccity" /></div>
+        <div style="margin-top:12px"><button class="btn" type="submit">Submit & Continue</button></div>
+      </form>
+      <div id="msg" class="small" style="margin-top:12px"></div>
+    </div>
+  </main>
+
+<script>
+const USERS_KEY='avsk_users', PRODUCTS_KEY='avsk_products';
+const $=s=>document.querySelector(s);
+function read(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+const params = new URLSearchParams(location.search);
+const ref = params.get('ref');
+const productId = params.get('product');
+const users = read(USERS_KEY, {});
+const products = read(PRODUCTS_KEY, []);
+
+if(!ref || !productId){ $('#card').innerHTML = '<h3>Invalid referral link</h3><p class="small">The link is incomplete.</p>'; throw new Error('invalid'); }
+const product = products.find(p=>p.id === productId);
+if(!product){ $('#card').innerHTML = '<h3>Unknown product</h3><p class="small">The product is not available.</p>'; throw new Error('unknown product'); }
+const refEmail = Object.keys(users).find(e => users[e].referralCode === ref);
+if(!refEmail){ $('#card').innerHTML = '<h3>Unknown referrer</h3><p class="small">The partner was not found.</p>'; throw new Error('unknown referrer'); }
+const refUser = users[refEmail];
+$('#productName').textContent = product.name; $('#productComm').textContent = product.commissionLabel || ('₹'+Number(product.commission||0)); $('#refName').textContent = refUser.name || refUser.email;
+
+// anonymous click
+refUser.clicks = (refUser.clicks||0) + 1; users[refEmail] = refUser; save(USERS_KEY, users);
+
+$('#leadForm').addEventListener('submit', (e)=>{ e.preventDefault(); const name = $('#cname').value.trim(); const email = $('#cemail').value.trim().toLowerCase(); const phone = $('#cphone').value.trim(); const city = $('#ccity').value.trim(); if(!name || !email || !phone){ $('#msg').textContent='Please fill name, email and phone.'; return; } const lead = { id: crypto.randomUUID(), name, email, phone, city, productId, productName: product.name, createdAt: Date.now(), status: 'pending', referrer: refEmail };
+
+const us = read(USERS_KEY, {});
+us[refEmail].leads = (us[refEmail].leads||0) + 1; us[refEmail].leadsList = us[refEmail].leadsList||[]; us[refEmail].leadsList.push(lead);
+us[refEmail].transactions = us[refEmail].transactions||[]; us[refEmail].transactions.push({ date: Date.now(), amount: 0, description: 'Lead: '+product.name, meta: { leadId: lead.id } });
+save(USERS_KEY, us);
+$('#msg').textContent = 'Thank you — redirecting to provider…'; setTimeout(()=>{ try{ location.href = product.url } catch { location.href = 'auth.html' } }, 800);
+});
+</script>
+</body>
+</html>

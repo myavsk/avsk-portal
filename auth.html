@@ -1,21 +1,146 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK | Secure access</title><style>
-:root{--p:#2563eb;--ink:#0f172a;--muted:#64748b}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#eff6ff,#f8fafc);color:var(--ink);font:15px system-ui,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px}.box{width:min(720px,100%);background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:28px;box-shadow:0 15px 50px #1e3a8a18}.brand{font-size:25px;font-weight:800;color:var(--p);text-align:center;margin-bottom:6px}.sub{text-align:center;color:var(--muted);margin-bottom:16px}label{display:block;font-weight:700;margin:12px 0 6px}input,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}button,.btn{border:0;border-radius:10px;padding:12px 16px;background:var(--p);color:#fff;font-weight:700;cursor:pointer;width:100%;margin-top:12px}.switch{background:#eff6ff;color:var(--p);margin-top:10px}.msg{margin-top:12px;text-align:center;min-height:20px;color:#b91c1c}.ok{color:#15803d}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:720px){.row{grid-template-columns:1fr}}
-</style></head><body><main class="box"><div class="brand">AVSK Portal</div><div class="sub" id="subtitle">Secure partner access</div><form id="form"><div id="nameWrap" style="display:none"><label>Full name</label><input id="name" autocomplete="name"></div><div class="row" id="kycWrap" style="display:none"><div><label>Aadhaar (last 4 digits)</label><input id="aadhar" inputmode="numeric" maxlength="4" placeholder="eg. 1234"></div><div><label>PAN</label><input id="pan" maxlength="10" placeholder="eg. ABCDE1234F"></div></div><div class="row" id="bankWrap" style="display:none"><div><label>Bank name</label><input id="bankName" placeholder="eg. State Bank"></div><div><label>IFSC</label><input id="ifsc" placeholder="eg. SBIN0000123"></div></div><div style="display:none" id="accWrap"><label>Bank account number</label><input id="bankAccount" inputmode="numeric" placeholder="Enter account number"></div><label>Email address</label><input id="email" type="email" required autocomplete="email"><label>Password</label><input id="password" type="password" required minlength="8" autocomplete="current-password"><div id="confirmWrap" style="display:none"><label>Confirm password</label><input id="confirm" type="password" minlength="8"></div><button id="submit">Sign in</button></form><button class="switch" id="switch">Create partner account</button><div class="msg" id="msg" role="alert"></div><a class="switch" style="display:block;text-align:center;margin-top:10px;color:var(--muted)" href="index.html">← Back to home</a></main><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK Portal — Login / Register</title>
+<style>
+:root{--p:#2563eb;--muted:#64748b}
+*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,#eff6ff,#f8fafc);margin:0;min-height:100vh;display:grid;place-items:center;padding:20px}
+.box{width:min(760px,100%);background:#fff;border:1px solid #e6eefb;border-radius:12px;padding:26px;box-shadow:0 10px 30px rgba(2,6,23,0.06)}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brand{font-weight:800;color:var(--p)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-weight:700;margin-top:12px}
+input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #d1e3fb}
+.btn{background:var(--p);color:#fff;padding:10px 14px;border:0;border-radius:8px;cursor:pointer;margin-top:14px}
+.btn.ghost{background:#eef6ff;color:var(--p)}
+.switch{background:#fff;border:1px solid #d1e3fb;padding:8px 12px;border-radius:8px;cursor:pointer}
+.msg{margin-top:10px;color:#b91c1c;min-height:20px}
+.small{color:var(--muted);font-size:13px;margin-top:8px}
+@media(max-width:720px){.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="header">
+      <div class="brand">AVSK Portal</div>
+      <div>
+        <button id="toggleModeBtn" class="switch">Create account</button>
+      </div>
+    </div>
+
+    <form id="authForm">
+      <div id="nameWrap" style="display:none">
+        <label>Full name</label>
+        <input id="name" autocomplete="name" />
+      </div>
+
+      <div class="form-row" id="kycWrap" style="display:none">
+        <div>
+          <label>Aadhaar (last 4)</label>
+          <input id="aadhar" inputmode="numeric" maxlength="4" placeholder="1234" />
+        </div>
+        <div>
+          <label>PAN</label>
+          <input id="pan" maxlength="10" placeholder="ABCDE1234F" />
+        </div>
+      </div>
+
+      <div class="form-row" id="bankWrap" style="display:none">
+        <div>
+          <label>Bank name</label>
+          <input id="bankName" placeholder="State Bank" />
+        </div>
+        <div>
+          <label>IFSC</label>
+          <input id="ifsc" placeholder="SBIN0001234" />
+        </div>
+      </div>
+
+      <div id="accWrap" style="display:none">
+        <label>Bank account number</label>
+        <input id="bankAccount" inputmode="numeric" placeholder="12341234" />
+      </div>
+
+      <label>Email</label>
+      <input id="email" type="email" required autocomplete="email" />
+
+      <label>Password</label>
+      <input id="password" type="password" required minlength="8" autocomplete="current-password" />
+
+      <div id="confirmWrap" style="display:none">
+        <label>Confirm password</label>
+        <input id="confirm" type="password" minlength="8" />
+      </div>
+
+      <button id="submitBtn" class="btn" type="submit">Sign in</button>
+    </form>
+
+    <div class="msg" id="msg"></div>
+    <div class="small">Partners must register to generate referral links and receive leads/payments. Admin accounts are created separately via promotion.</div>
+  </div>
+
+<script>
 // Keys
-const U='avsk_users',S='avsk_session';let register=false;const $=s=>document.querySelector(s);
-// helpers
-function read(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function hex(a){return [...new Uint8Array(a)].map(x=>x.toString(16).padStart(2,'0')).join('')}
-async function digest(text){return hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)))}
-async function hash(p,s){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(p),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(s),iterations:140000,hash:'SHA-256'},key,256))}
-function salt(){const a=new Uint8Array(16);crypto.getRandomValues(a);return hex(a)}
-function token(){const a=new Uint8Array(24);crypto.getRandomValues(a);return hex(a)}
-// UI
-function setMode(){register=!register;$('#nameWrap').style.display=register?'block':'none';$('#confirmWrap').style.display=register?'block':'none';$('#kycWrap').style.display=register?'grid':'none';$('#bankWrap').style.display=register?'grid':'none';$('#accWrap').style.display=register?'block':'none';$('#submit').textContent=register?'Create account':'Sign in';$('#switch').textContent=register?'Already have an account? Sign in':'Create partner account';$('#subtitle').textContent=register?'Join the AVSK partner network':'Secure partner access';$('#msg').textContent=''}$('#switch').onclick=setMode;
-// On submit
-$('#form').onsubmit=async e=>{e.preventDefault();const email=$('#email').value.trim().toLowerCase(),pw=$('#password').value,users=read(U,{});if(!email||pw.length<8){$('#msg').textContent='Use a valid email and an 8+ character password.';return}if(register){const name=$('#name').value.trim(),aadhar=$('#aadhar').value.trim(),pan=$('#pan').value.trim().toUpperCase(),bankName=$('#bankName').value.trim(),ifsc=$('#ifsc').value.trim().toUpperCase(),bankAccount=$('#bankAccount').value.trim();if(!name){$('#msg').textContent='Enter your full name.';return}if(pw!==$('#confirm').value){$('#msg').textContent='Passwords do not match.';return}if(users[email]){$('#msg').textContent='An account with this email already exists.';return}const s=salt(),h=await hash(pw,s),ref=(await digest(email)).slice(0,12);users[email]={email,name,salt:s,hash:h,role:'partner',balance:0,referralCode:ref,clicks:0,leads:0,transactions:[],createdAt:Date.now(),kyc:{aadharLast4:aadhar||'',pan:pan||'',bankName:bankName||'',bankAccount:bankAccount||'',ifsc:ifsc||'',status:'pending',verified:false,submittedAt:Date.now()}};save(U,users);localStorage.setItem(S,JSON.stringify({email,token:token(),issued:Date.now()}));$('#msg').className='msg ok';$('#msg').textContent='Account created and signed in. Redirecting…';setTimeout(()=>location.href='dashboard.html',600);return}else{const u=users[email];if(!u){$('#msg').textContent='No account found for this email.';return}const h=await hash(pw,u.salt);if(h!==u.hash){$('#msg').textContent='Invalid email or password.';return}localStorage.setItem(S,JSON.stringify({email,token:token(),issued:Date.now()}));location.href=u.role==='admin'?'admin.html':'dashboard.html';return}};
-// quick redirect if already signed in
-(function(){const q=new URLSearchParams(location.search);const r=q.get('ref');if(r)localStorage.setItem('avsk_pending_ref',r);const s=read(S,null),u=s&&read(U,{})[s.email];if(u)location.href=u.role==='admin'?'admin.html':'dashboard.html' })();
-</script></body></html>
+const USERS_KEY = 'avsk_users';
+const SESSION_KEY = 'avsk_session';
+
+const $ = s => document.querySelector(s);
+
+function read(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
+function save(key, v){ localStorage.setItem(key, JSON.stringify(v)); }
+
+// crypto helpers
+function hex(buf){ return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+async function digest(text){ return hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))); }
+async function hashPassword(password, salt){ const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), {name:'PBKDF2'}, false, ['deriveBits']); const derived = await crypto.subtle.deriveBits({name:'PBKDF2', salt: new TextEncoder().encode(salt), iterations:140000, hash:'SHA-256'}, key, 256); return hex(derived); }
+function randHex(len=16){ const a=new Uint8Array(len); crypto.getRandomValues(a); return hex(a); }
+function token(){ return randHex(24); }
+
+let registerMode = false;
+function setMode(){ registerMode = !registerMode; $('#nameWrap').style.display = registerMode ? 'block' : 'none'; $('#confirmWrap').style.display = registerMode ? 'block' : 'none'; $('#kycWrap').style.display = registerMode ? 'grid' : 'none'; $('#bankWrap').style.display = registerMode ? 'grid' : 'none'; $('#accWrap').style.display = registerMode ? 'block' : 'none'; $('#submitBtn').textContent = registerMode ? 'Create account' : 'Sign in'; $('#toggleModeBtn').textContent = registerMode ? 'Have an account? Sign in' : 'Create account'; $('#msg').textContent=''; }
+$('#toggleModeBtn').addEventListener('click', setMode);
+
+// form submit
+$('#authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('#msg').textContent = '';
+  const email = $('#email').value.trim().toLowerCase();
+  const password = $('#password').value;
+  if (!email || password.length < 8) { $('#msg').textContent = 'Enter a valid email and a password (8+ chars).'; return; }
+  const users = read(USERS_KEY, {});
+
+  if (registerMode) {
+    const name = $('#name').value.trim();
+    if (!name) { $('#msg').textContent = 'Please enter your full name.'; return; }
+    if (password !== $('#confirm').value) { $('#msg').textContent = 'Passwords do not match.'; return; }
+    if (users[email]) { $('#msg').textContent = 'An account with this email already exists.'; return; }
+
+    const salt = randHex(16);
+    const hash = await hashPassword(password, salt);
+    const referralCode = (await digest(email)).slice(0,12);
+
+    users[email] = {
+      email, name, salt, hash, role: 'partner', balance: 0, referralCode, clicks:0, leads:0, leadsList:[], transactions:[], createdAt: Date.now(),
+      profile: { upi:'', bankName:'', ifsc:'', bankAccount:'', createdAt: Date.now() },
+      kyc: { aadharLast4: $('#aadhar').value.trim(), pan: $('#pan').value.trim().toUpperCase(), documents: {}, status:'pending', verified:false }
+    };
+    save(USERS_KEY, users);
+
+    // create session and go to dashboard
+    save(SESSION_KEY, { email, token: token(), issued: Date.now() });
+    location.href = 'dashboard.html';
+    return;
+  }
+
+  // login
+  const user = users[email];
+  if (!user) { $('#msg').textContent = 'Invalid credentials.'; return; }
+  const computed = await hashPassword(password, user.salt);
+  if (computed !== user.hash) { $('#msg').textContent = 'Invalid credentials.'; return; }
+  save(SESSION_KEY, { email, token: token(), issued: Date.now() });
+  location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+});
+
+// quick redirect if session exists
+(function(){ const s = read(SESSION_KEY, null); const users = read(USERS_KEY, {}); if (s && users[s.email]) { location.href = users[s.email].role === 'admin' ? 'admin.html' : 'dashboard.html'; } })();
+</script>
+</body>
+</html>

@@ -1,7 +1,17 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK | Earn more with trusted financial products</title><style>
-:root{--p:#2563eb;--ink:#0f172a;--muted:#64748b;--bg:#f8fafc;--card:#fff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px Inter,system-ui,sans-serif}a{text-decoration:none;color:inherit}.wrap{max-width:1120px;margin:auto;padding:0 20px}header{background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:2}.nav{height:70px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:23px;font-weight:800;color:var(--p)}.navlinks{display:flex;gap:18px;align-items:center}.btn{display:inline-block;border:0;border-radius:10px;padding:11px 17px;background:var(--p);color:#fff;font-weight:700;cursor:pointer}.btn.light{background:#eff6ff;color:var(--p)}.hero{margin:48px 0;padding:58px 35px;border-radius:24px;background:linear-gradient(125deg,#172554,#2563eb);color:#fff}.hero h1{font-size:clamp(32px,5vw,58px);max-width:700px;margin:0 0 16px;line-height:1.04}.hero p{max-width:600px;color:#dbeafe;font-size:18px;line-height:1.6}.section{padding:20px 0 55px}.section h2{font-size:28px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}.card{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;padding:22px;box-shadow:0 5px 18px #0f172a08}.tag{color:#166534;background:#dcfce7;border-radius:99px;padding:5px 9px;font-size:12px;font-weight:700}.card h3{margin:18px 0 8px}.muted{color:var(--muted)}footer{padding:28px 0;color:var(--muted);border-top:1px solid #e2e8f0}@media(max-width:650px){.navlinks a:not(.btn){display:none}.hero{margin-top:25px;padding:35px 22px}}
-</style></head><body><header><div class="wrap nav"><a class="brand" href="index.html">AVSK<span style="color:#0f172a"> Portal</span></a><nav class="navlinks"><a href="#products">Products</a><a href="dashboard.html">Dashboard</a><a class="btn" href="auth.html">Login / Join</a></nav></div></header><main class="wrap"><section class="hero"><div class="tag" style="background:#bfdbfe;color:#1e3a8a">PARTNER NETWORK</div><h1>Turn trusted recommendations into real income.</h1><p>Discover high-demand financial products, share your unique links and manage your earnings in one professional partner platform.</p><a class="btn" style="background:#fff;color:#1d4ed8" href="auth.html">Become a partner →</a></section><section id="products" class="section"><h2>Featured products</h2><p class="muted">Choose products that fit your audience and start referring.</p><div id="productsGrid" class="grid"></div></section></main><footer><div class="wrap">© 2026 AVSK Portal · Built for responsible partner growth.</div></footer><script>
-const KEY='avsk_products', defaults=[{id:'loan',name:'Personal Loan',commission:2500,commissionLabel:'₹2,500 per approved lead',url:'auth.html'},{id:'card',name:'Instant Credit Card',commission:1000,commissionLabel:'₹1,000 per approval',url:'auth.html'},{id:'savings',name:'Savings Account',commission:300,commissionLabel:'₹300 per activation',url:'auth.html'}];
-function products(){try{return JSON.parse(localStorage.getItem(KEY))||defaults}catch{return defaults}}function esc(v){return String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]))}function render(){let p=products(),g=document.querySelector('#productsGrid');g.innerHTML=p.length?p.map(x=>`<article class="card"><span class="tag">Financial product</span><h3>${esc(x.name)}</h3><p class="muted">Earn <b>${esc(x.commissionLabel||('₹'+Number(x.commission||0).toLocaleString('en-IN')))}</b></p><a class="btn light" href="auth.html?product=${encodeURIComponent(x.id)}">Start referring →</a></article>`).join(''):'<p class="muted">New products are coming soon.</p>'}if(!localStorage.getItem(KEY))localStorage.setItem(KEY,JSON.stringify(defaults));render();addEventListener('storage',e=>{if(e.key===KEY)render()});
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AVSK Portal — Redirecting to secure login</title>
+  <meta http-equiv="refresh" content="0; url=auth.html" />
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f8fafc;color:#0f172a;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}a{color:#2563eb}</style>
+</head>
+<body>
+  <div>
+    <h2>Redirecting to secure login…</h2>
+    <p>If you are not redirected automatically, <a href="auth.html">click here to sign in</a>.</p>
+  </div>
+  <script>location.replace('auth.html');</script>
+</body>
+</html>
