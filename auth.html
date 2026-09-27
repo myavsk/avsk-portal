@@ -10,7 +10,6 @@
     <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
         <h2 id="form-title" class="text-2xl font-bold text-center text-slate-800 mb-6">Partner Login</h2>
         
-        <!-- Form -->
         <form id="auth-form" onsubmit="handleAuth(event)">
             <div id="name-field" class="mb-4 hidden">
                 <label class="block text-slate-700 text-sm font-semibold mb-2">Full Name</label>
@@ -47,8 +46,7 @@
         function handleAuth(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
+            
             if(!isLogin) {
                 const name = document.getElementById('fullname').value;
                 localStorage.setItem('avsk_user', JSON.stringify({ name, email }));
@@ -56,6 +54,11 @@
                 toggleMode();
             } else {
                 localStorage.setItem('avsk_logged_in', 'true');
+                // Ensure user data exists
+                let existingUser = JSON.parse(localStorage.getItem('avsk_user') || '{}');
+                if(!existingUser.email || existingUser.email !== email) {
+                    localStorage.setItem('avsk_user', JSON.stringify({ name: email.split('@')[0], email: email }));
+                }
                 alert('Login successful!');
                 window.location.href = 'dashboard.html';
             }
