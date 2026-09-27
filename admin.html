@@ -15,6 +15,18 @@
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-10">
+        <!-- View As User / Switcher Section -->
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">👀 View Portal as Partner (Impersonate)</h2>
+            <p class="text-slate-600 text-sm mb-4">Admin can directly switch and view any partner's dashboard and referral link without entering their password.</p>
+            
+            <div class="flex gap-4">
+                <input type="text" id="target-user-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter partner email (e.g. partner@gmail.com)">
+                <button onclick="switchToUserView()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap">Switch View</button>
+            </div>
+        </div>
+
+        <!-- Wallet Management Section -->
         <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-8">
             <h2 class="text-xl font-bold text-slate-800 mb-4">💰 Manage Partner Wallet (Add / Deduct / Bonus)</h2>
             <div class="grid md:grid-cols-2 gap-4 mb-4">
@@ -38,6 +50,7 @@
             <button onclick="updateWallet()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">Update Wallet Balance</button>
         </div>
 
+        <!-- Product Management Section -->
         <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
             <h2 class="text-xl font-bold text-slate-800 mb-4">🛠️ Add New Financial Product</h2>
             <p class="text-slate-600 text-sm mb-4">You can configure new products here that will instantly show up on the main portal.</p>
@@ -56,6 +69,19 @@
     </main>
 
     <script>
+        function switchToUserView() {
+            const email = document.getElementById('target-user-email').value;
+            if(!email) {
+                alert('Please enter partner email to view!');
+                return;
+            }
+            localStorage.setItem('avsk_logged_in', 'true');
+            localStorage.setItem('avsk_user', JSON.stringify({ name: email.split('@')[0], email: email }));
+            
+            alert(`Switched successfully to view as ${email}! Redirecting to dashboard...`);
+            window.location.href = 'dashboard.html';
+        }
+
         function updateWallet() {
             const amount = document.getElementById('admin-amount').value;
             const type = document.getElementById('admin-action-type').value;
