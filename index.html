@@ -3,15 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AVSK Portal — Redirecting to secure login</title>
-  <meta http-equiv="refresh" content="0; url=auth.html" />
-  <style>body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f8fafc;color:#0f172a;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}a{color:#2563eb}</style>
-</head>
-<body>
-  <div>
-    <h2>Redirecting to secure login…</h2>
-    <p>If you are not redirected automatically, <a href="auth.html">click here to sign in</a>.</p>
-  </div>
+  <title>AVSK Portal — Redirecting</title>
   <script>location.replace('auth.html');</script>
+</head>
+<body class="min-h-screen bg-slate-50 flex items-center justify-center">
+  <div class="text-center">
+    <h2 class="text-xl font-semibold">Redirecting to secure login…</h2>
+    <p class="mt-2 text-slate-600">If you are not redirected automatically, <a href="auth.html" class="text-blue-600">click here</a>.</p>
+  </div>
 </body>
 </html>

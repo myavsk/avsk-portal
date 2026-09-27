@@ -1,125 +1,145 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK Portal — Partner Dashboard</title>
-<style>
-:root{--p:#2563eb;--muted:#64748b}
-*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f8fafc;margin:0;color:#0f172a}
-header{background:#fff;border-bottom:1px solid #e6eefb}
-.wrap{max-width:1100px;margin:auto;padding:18px}
-.nav{height:64px;display:flex;align-items:center;justify-content:space-between}
-.brand{font-weight:800;color:var(--p)}
-.btn{background:var(--p);color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
-.card{background:#fff;border-radius:12px;padding:14px;border:1px solid #e6eefb}
-.small{color:var(--muted)}
-.section{margin-top:18px}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{padding:8px;border-bottom:1px solid #eef6ff;text-align:left}
-.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #dbeafe}
-</style>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AVSK — Partner Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header>
-    <div class="wrap nav">
-      <div class="brand">AVSK Portal</div>
-      <div>
-        <button id="toReferrals" class="btn">Referral links</button>
-        <button id="logout" class="btn" style="margin-left:12px;background:#ef4444">Logout</button>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <header class="bg-white border-b">
+    <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+      <div class="text-xl font-bold text-blue-600">AVSK Portal</div>
+      <div class="flex items-center gap-3">
+        <button id="gotoRef" class="px-3 py-2 rounded bg-blue-600 text-white text-sm">Referral links</button>
+        <button id="logout" class="px-3 py-2 rounded bg-red-500 text-white text-sm">Logout</button>
       </div>
     </div>
   </header>
 
-  <main class="wrap">
-    <h2 id="welcome">Welcome</h2>
-    <p class="small">Your secure partner workspace.</p>
-
-    <div class="grid">
-      <div class="card"><div class="small">Wallet balance</div><div style="font-size:22px;font-weight:800;margin-top:8px" id="balance">₹0</div></div>
-      <div class="card"><div class="small">Referral clicks</div><div style="font-size:22px;font-weight:800;margin-top:8px" id="clicks">0</div></div>
-      <div class="card"><div class="small">Converted leads</div><div style="font-size:22px;font-weight:800;margin-top:8px" id="leads">0</div></div>
-    </div>
-
-    <div class="section">
-      <h3>My referral products & links</h3>
-      <div id="products" class="grid"></div>
-    </div>
-
-    <div class="section">
-      <h3>My Profile & KYC</h3>
-      <div class="card">
-        <div class="profile-grid">
-          <div>
-            <label>Full name</label>
-            <input id="p_name" />
-          </div>
-          <div>
-            <label>Email (cannot change)</label>
-            <input id="p_email" disabled />
-          </div>
-          <div>
-            <label>UPI ID</label>
-            <input id="p_upi" placeholder="name@bank" />
-          </div>
-          <div>
-            <label>Bank name</label>
-            <input id="p_bank" />
-          </div>
-          <div>
-            <label>IFSC</label>
-            <input id="p_ifsc" />
-          </div>
-          <div>
-            <label>Account number</label>
-            <input id="p_account" />
-          </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <label>PAN (text)</label>
-          <input id="p_pan" />
-          <label style="margin-top:8px">Aadhaar last 4 (text)</label>
-          <input id="p_aadhaar" />
-        </div>
-
-        <div style="margin-top:12px">
-          <label>Upload KYC documents (PAN / Aadhaar) — JPG/PNG (stored locally)</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-            <input type="file" id="doc_pan" accept="image/*" />
-            <input type="file" id="doc_aadhaar" accept="image/*" />
-          </div>
-        </div>
-
-        <div style="margin-top:12px;display:flex;gap:10px">
-          <button id="saveProfile" class="btn">Save profile & submit KYC</button>
-          <button id="downloadProfile" class="btn" style="background:#6b7280">Download profile JSON</button>
-        </div>
-        <div id="profileMsg" class="small" style="margin-top:8px"></div>
+  <main class="max-w-6xl mx-auto p-4">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 id="welcome" class="text-2xl font-semibold">Welcome</h1>
+        <p class="text-sm text-slate-500">Your partner workspace</p>
       </div>
     </div>
 
-    <div class="section">
-      <h3>Recent transactions</h3>
-      <div class="card"><table class="table"><thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead><tbody id="tx"></tbody></table></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded shadow">
+        <div class="text-sm text-slate-500">Wallet balance</div>
+        <div id="balance" class="text-2xl font-bold text-green-600 mt-2">₹0.00</div>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <div class="text-sm text-slate-500">Referral clicks</div>
+        <div id="clicks" class="text-2xl font-bold mt-2">0</div>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <div class="text-sm text-slate-500">Converted leads</div>
+        <div id="leads" class="text-2xl font-bold mt-2">0</div>
+      </div>
     </div>
 
+    <section class="mt-6">
+      <h2 class="text-lg font-semibold mb-2">Products & referral links</h2>
+      <div id="productsGrid" class="grid md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <section class="mt-6">
+      <h2 class="text-lg font-semibold mb-2">My Profile & KYC</h2>
+      <div class="bg-white p-4 rounded shadow">
+        <div class="grid md:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold">Full name</label>
+            <input id="p_name" class="w-full p-2 border rounded mt-1" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">Email (cannot change)</label>
+            <input id="p_email" disabled class="w-full p-2 border rounded mt-1 bg-slate-50" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">UPI ID</label>
+            <input id="p_upi" class="w-full p-2 border rounded mt-1" placeholder="name@bank" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">Bank name</label>
+            <input id="p_bank" class="w-full p-2 border rounded mt-1" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">IFSC</label>
+            <input id="p_ifsc" class="w-full p-2 border rounded mt-1" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">Account number</label>
+            <input id="p_account" class="w-full p-2 border rounded mt-1" />
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <label class="text-xs font-semibold">PAN (text)</label>
+          <input id="p_pan" class="w-full p-2 border rounded mt-1" />
+          <label class="text-xs font-semibold mt-2 block">Aadhaar last 4</label>
+          <input id="p_aadhaar" class="w-full p-2 border rounded mt-1" />
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs font-semibold">Upload PAN image</label>
+            <input id="doc_pan" type="file" accept="image/*" class="mt-1" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">Upload Aadhaar image</label>
+            <input id="doc_aadhaar" type="file" accept="image/*" class="mt-1" />
+          </div>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+          <button id="saveProfile" class="px-4 py-2 bg-blue-600 text-white rounded">Save profile & submit KYC</button>
+          <button id="downloadProfile" class="px-4 py-2 bg-slate-200 rounded">Download JSON</button>
+          <div id="profileMsg" class="text-sm text-green-600 ml-2 self-center"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6">
+      <h2 class="text-lg font-semibold mb-2">Recent transactions</h2>
+      <div class="bg-white p-4 rounded shadow">
+        <table class="w-full text-sm">
+          <thead class="text-slate-500 text-left">
+            <tr><th>Date</th><th>Description</th><th>Amount</th></tr>
+          </thead>
+          <tbody id="txBody" class="divide-y"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
 <script>
 const USERS_KEY = 'avsk_users';
 const SESSION_KEY = 'avsk_session';
 const PRODUCTS_KEY = 'avsk_products';
+
 const $ = s => document.querySelector(s);
-function read(k,d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
+
+function read(k, d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
-function money(n){ return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(n)||0); }
-function esc(s){ return String(s||''); }
+function money(n){ return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(Number(n||0)); }
+function readFileAsDataUrl(file){ return new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); }); }
 
-function auth(){ const s = read(SESSION_KEY, null); const users = read(USERS_KEY, {}); if(!s || !users[s.email]){ location.replace('auth.html'); return null; } const u = users[s.email]; if(!u || u.role !== 'partner'){ location.replace('auth.html'); return null; } return u; }
+function requireAuth(){
+  const s = read(SESSION_KEY, null);
+  const users = read(USERS_KEY, {});
+  if(!s || !users[s.email]) { location.replace('auth.html'); return null; }
+  return users[s.email];
+}
 
-let user = auth();
+let user = requireAuth();
 if(!user) throw new Error('redirecting');
 
-function render(){ user = auth(); if(!user) return; $('#welcome').textContent = 'Welcome, ' + (user.name || user.email);
+function render(){
+  user = requireAuth();
+  if(!user) return;
+  $('#welcome').textContent = 'Welcome, ' + (user.name || user.email);
   $('#p_name').value = user.name || '';
   $('#p_email').value = user.email;
   $('#p_upi').value = user.profile?.upi || '';
@@ -133,58 +153,93 @@ function render(){ user = auth(); if(!user) return; $('#welcome').textContent = 
   $('#clicks').textContent = user.clicks || 0;
   $('#leads').textContent = user.leads || 0;
 
-  // products
   const products = read(PRODUCTS_KEY, []);
   const base = location.href.replace('dashboard.html','');
-  const out = $('#products');
-  out.innerHTML = products.length ? products.map((p,i)=>{
-    const link = base + 'referral.html?ref=' + encodeURIComponent(user.referralCode) + '&product=' + encodeURIComponent(p.id);
-    return `<div class="card"><strong>${esc(p.name)}</strong><div class="small">${esc(p.commissionLabel || ('₹'+Number(p.commission||0)))}</div><div style="margin-top:8px;display:flex;gap:8px"><input readonly value="${esc(link)}" id="link${i}" style="flex:1;padding:8px;border-radius:8px;border:1px solid #eef6ff" /><button class="btn" data-copy="link${i}">Copy</button><a class="btn" href="${esc(p.url)}" target="_blank" style="background:#6b7280">Preview</a></div></div>`;
-  }).join('') : '<div class="small">No products available.</div>';
+  const grid = $('#productsGrid');
+  grid.innerHTML = '';
+  if(products.length === 0){
+    grid.innerHTML = '<div class="text-slate-500">No products available.</div>';
+  } else {
+    products.forEach((p,i)=>{
+      const link = base + 'referral.html?ref=' + encodeURIComponent(user.referralCode) + '&product=' + encodeURIComponent(p.id);
+      const card = document.createElement('div');
+      card.className = 'bg-white p-4 rounded shadow';
+      card.innerHTML = `<div class="font-semibold">${p.name}</div><div class="text-sm text-slate-500">${p.commissionLabel || ('₹'+Number(p.commission||0))}</div>
+        <div class="mt-2 flex gap-2">
+          <input readonly id="link${i}" class="flex-1 p-2 border rounded bg-slate-50" value="${link}" />
+          <button class="px-3 py-2 bg-blue-600 text-white rounded" data-copy="link${i}">Copy</button>
+          <a class="px-3 py-2 bg-slate-200 rounded" href="${p.url}" target="_blank">Preview</a>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
 
   // transactions
-  const txBody = $('#tx'); txBody.innerHTML = '';
+  const txBody = $('#txBody');
+  txBody.innerHTML = '';
   const txs = (user.transactions||[]).slice(-20).reverse();
-  if(!txs.length) txBody.innerHTML = '<tr><td colspan="3" class="small">No transactions yet.</td></tr>';
-  else txs.forEach(t=>{ const tr = document.createElement('tr'); tr.innerHTML = `<td>${new Date(t.date).toLocaleString('en-IN')}</td><td>${esc(t.description)}</td><td>${money(t.amount)}</td>`; txBody.appendChild(tr); });
+  if(txs.length===0) txBody.innerHTML = '<tr><td colspan="3" class="text-slate-500">No transactions yet.</td></tr>';
+  else txs.forEach(t=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="py-2 text-sm">${new Date(t.date).toLocaleString()}</td><td class="py-2 text-sm">${t.description}</td><td class="py-2 text-sm text-green-600">${money(t.amount)}</td>`;
+    txBody.appendChild(tr);
+  });
 }
 
-// copy link
-$('#products').addEventListener('click', (e)=>{ const btn = e.target.closest('[data-copy]'); if(!btn) return; const id = btn.dataset.copy; const val = document.getElementById(id).value; navigator.clipboard?.writeText(val); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy',1000); });
-
-// save profile & KYC
-async function readFileAsDataUrl(file){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); }); }
+document.getElementById('productsGrid').addEventListener('click', (e)=> {
+  const btn = e.target.closest('[data-copy]');
+  if(!btn) return;
+  const id = btn.dataset.copy;
+  const val = document.getElementById(id).value;
+  navigator.clipboard?.writeText(val);
+  btn.textContent = 'Copied';
+  setTimeout(()=>btn.textContent='Copy', 1000);
+});
 
 $('#saveProfile').addEventListener('click', async ()=>{
-  const users = read(USERS_KEY, {}); const u = users[user.email];
+  const users = read(USERS_KEY, {});
+  const u = users[user.email];
   u.name = $('#p_name').value.trim() || u.name;
-  u.profile = u.profile||{}; u.profile.upi = $('#p_upi').value.trim(); u.profile.bankName = $('#p_bank').value.trim(); u.profile.ifsc = $('#p_ifsc').value.trim(); u.profile.bankAccount = $('#p_account').value.trim();
+  u.profile = u.profile || {};
+  u.profile.upi = $('#p_upi').value.trim();
+  u.profile.bankName = $('#p_bank').value.trim();
+  u.profile.ifsc = $('#p_ifsc').value.trim();
+  u.profile.bankAccount = $('#p_account').value.trim();
   u.kyc = u.kyc || {};
-  u.kyc.pan = $('#p_pan').value.trim().toUpperCase(); u.kyc.aadharLast4 = $('#p_aadhaar').value.trim();
+  u.kyc.pan = $('#p_pan').value.trim().toUpperCase();
+  u.kyc.aadharLast4 = $('#p_aadhaar').value.trim();
 
-  // files
+  // upload files as data URLs
   const panFile = document.getElementById('doc_pan').files[0];
   const aadFile = document.getElementById('doc_aadhaar').files[0];
   u.kyc.documents = u.kyc.documents || {};
-  if(panFile){ try{ u.kyc.documents.pan = await readFileAsDataUrl(panFile); } catch(e){} }
-  if(aadFile){ try{ u.kyc.documents.aadhaar = await readFileAsDataUrl(aadFile); } catch(e){} }
+  if(panFile) u.kyc.documents.pan = await readFileAsDataUrl(panFile);
+  if(aadFile) u.kyc.documents.aadhaar = await readFileAsDataUrl(aadFile);
 
-  // submitting sets to pending and notifies admin
-  u.kyc.status = 'pending'; u.kyc.verified = false; u.kyc.submittedAt = Date.now();
-  users[user.email] = u; save(USERS_KEY, users);
-  $('#profileMsg').textContent = 'Profile saved and KYC submitted. Await admin verification.';
+  u.kyc.status = 'pending';
+  u.kyc.verified = false;
+  u.kyc.submittedAt = Date.now();
+
+  users[user.email] = u;
+  save(USERS_KEY, users);
+  $('#profileMsg').textContent = 'Saved & KYC submitted. Await admin verification.';
+  setTimeout(()=>$('#profileMsg').textContent='', 4000);
   render();
 });
 
-$('#downloadProfile').addEventListener('click', ()=>{ const users = read(USERS_KEY,{}); const u = users[user.email]; const blob = new Blob([JSON.stringify(u, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${user.email}_profile.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); });
+$('#downloadProfile').addEventListener('click', ()=>{
+  const users = read(USERS_KEY, {});
+  const u = users[user.email];
+  const blob = new Blob([JSON.stringify(u, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `${user.email}_profile.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
 
-$('#logout').addEventListener('click', ()=>{ localStorage.removeItem(SESSION_KEY); location.href='auth.html'; });
+$('#logout').addEventListener('click', ()=>{ localStorage.removeItem(SESSION_KEY); location.href = 'auth.html'; });
+$('#gotoRef').addEventListener('click', ()=> window.scrollTo({ top: document.querySelector('#productsGrid').offsetTop - 80, behavior: 'smooth' }));
 
-// initial render and storage listener
-render(); window.addEventListener('storage', (e)=>{ if([USERS_KEY,PRODUCTS_KEY].includes(e.key)) render(); });
-
-// quick link to referrals section
-$('#toReferrals').addEventListener('click', ()=>{ window.scrollTo({ top: document.querySelector('#products').offsetTop - 80, behavior: 'smooth' }); });
+render();
+window.addEventListener('storage', (e)=> { if([USERS_KEY, PRODUCTS_KEY].includes(e.key)) render(); });
 </script>
 </body>
 </html>

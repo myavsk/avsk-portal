@@ -1,115 +1,222 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK Portal — Admin Console</title>
-<style>
-:root{--p:#2563eb;--muted:#64748b;--red:#dc2626}
-*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Arial;background:#f1f5f9;margin:0;color:#0f172a}
-header{background:#0f172a;color:#fff}
-.wrap{max-width:1200px;margin:auto;padding:16px}
-.nav{height:64px;display:flex;align-items:center;justify-content:space-between}
-.brand{font-weight:800}
-.btn{background:var(--p);color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-.btn.gray{background:#eef2ff;color:#0f172a}
-.layout{display:grid;grid-template-columns:360px 1fr;gap:16px;margin-top:18px}
-.card{background:#fff;border-radius:12px;padding:12px;border:1px solid #e6eefb}
-.table{width:100%;border-collapse:collapse}
-.table th,.table td{padding:8px;border-bottom:1px solid #eef6ff;text-align:left}
-.small{color:var(--muted)}
-.scroll{overflow:auto}
-@media(max-width:900px){.layout{grid-template-columns:1fr}}
-</style>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AVSK — Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <header>
-    <div class="wrap nav"><div class="brand">AVSK Admin Console</div><div><button id="toHome" class="btn gray">Home</button> <button id="logout" class="btn" style="margin-left:8px;background:#ef4444">Logout</button></div></div>
-  </header>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <!-- Admin password modal -->
+  <div id="pwModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md shadow">
+      <h2 class="text-xl font-semibold mb-2">Admin access</h2>
+      <p class="text-sm text-slate-600 mb-4">Enter the admin password to open the admin console.</p>
+      <input id="adminPw" type="password" class="w-full p-2 border rounded mb-3" placeholder="Admin password" />
+      <div class="flex gap-2">
+        <button id="pwSubmit" class="flex-1 bg-blue-600 text-white p-2 rounded">Unlock</button>
+        <button id="pwCancel" class="flex-1 border p-2 rounded">Cancel</button>
+      </div>
+      <p id="pwMsg" class="text-sm text-red-600 mt-2 min-h-[1.25rem]"></p>
+    </div>
+  </div>
 
-  <main class="wrap">
-    <div class="layout">
-      <section class="card">
-        <h3 id="prodTitle">Add product</h3>
-        <label>Product name</label>
-        <input id="p_name" />
-        <label style="margin-top:8px">Commission amount (₹)</label>
-        <input id="p_comm" type="number" min="0" step="0.01" />
-        <label style="margin-top:8px">Commission display text</label>
-        <input id="p_label" />
-        <label style="margin-top:8px">Target URL (https://)</label>
-        <input id="p_url" />
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button id="saveProd" class="btn">Save</button>
-          <button id="clearProd" class="btn gray">Clear</button>
+  <!-- Admin UI (hidden until unlocked) -->
+  <div id="adminUI" class="hidden">
+    <header class="bg-white border-b">
+      <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+        <div class="text-xl font-bold">AVSK Admin Console</div>
+        <div class="flex items-center gap-3">
+          <a href="auth.html" class="px-3 py-2 rounded border text-sm">Home</a>
+          <button id="logout" class="px-3 py-2 rounded bg-red-500 text-white text-sm">Logout</button>
         </div>
-        <div id="prodMsg" class="small" style="margin-top:8px"></div>
-      </section>
+      </div>
+    </header>
 
-      <section class="card">
-        <h3>Products</h3>
-        <div class="scroll" style="max-height:320px;overflow:auto;margin-top:8px">
-          <table class="table"><thead><tr><th>Product</th><th>Commission</th><th>URL</th><th>Actions</th></tr></thead><tbody id="products"></tbody></table>
+    <main class="max-w-6xl mx-auto p-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="font-semibold">Add / Edit product</h3>
+          <label class="text-xs mt-2">Name</label>
+          <input id="prodName" class="w-full p-2 border rounded" />
+          <label class="text-xs mt-2">Commission (numeric)</label>
+          <input id="prodCommission" type="number" class="w-full p-2 border rounded" />
+          <label class="text-xs mt-2">Commission label</label>
+          <input id="prodLabel" class="w-full p-2 border rounded" />
+          <label class="text-xs mt-2">Target URL</label>
+          <input id="prodUrl" class="w-full p-2 border rounded" placeholder="https://..." />
+          <div class="flex gap-2 mt-3">
+            <button id="saveProd" class="px-3 py-2 bg-blue-600 text-white rounded">Save</button>
+            <button id="clearProd" class="px-3 py-2 border rounded">Clear</button>
+          </div>
+          <p id="prodMsg" class="text-sm text-green-600 mt-2"></p>
+        </section>
+
+        <section class="bg-white p-4 rounded shadow">
+          <h3 class="font-semibold">Partners & KYC</h3>
+          <div class="mt-3 overflow-auto" style="max-height:420px">
+            <table class="w-full text-sm">
+              <thead class="text-slate-500 text-left"><tr><th>Email</th><th>Balance</th><th>KYC</th><th>Actions</th></tr></thead>
+              <tbody id="usersTable" class="divide-y"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <section class="bg-white p-4 rounded shadow mt-4">
+        <h3 class="font-semibold">Wallet operation</h3>
+        <div class="grid md:grid-cols-3 gap-2 mt-2">
+          <input id="w_email" placeholder="partner email" class="p-2 border rounded" />
+          <input id="w_amount" placeholder="amount" type="number" class="p-2 border rounded" />
+          <select id="w_op" class="p-2 border rounded">
+            <option value="credit">Credit</option>
+            <option value="bonus">Bonus</option>
+            <option value="debit">Debit</option>
+          </select>
+        </div>
+        <div class="mt-3">
+          <button id="applyWallet" class="px-4 py-2 bg-blue-600 text-white rounded">Apply</button>
+          <span id="walletMsg" class="text-sm text-green-600 ml-3"></span>
         </div>
       </section>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <h3>Partners & KYC</h3>
-      <p class="small">Manage partner profiles, verify KYC and adjust wallets.</p>
-      <div style="margin-top:8px" class="scroll"><table class="table"><thead><tr><th>Email</th><th>Balance</th><th>KYC</th><th>Actions</th></tr></thead><tbody id="users"></tbody></table></div>
-    </div>
-
-    <div class="card" style="margin-top:12px">
-      <h3>Wallet operation</h3>
-      <label>Partner email</label>
-      <input id="w_email" />
-      <label style="margin-top:8px">Amount (₹)</label>
-      <input id="w_amount" type="number" />
-      <label style="margin-top:8px">Operation</label>
-      <select id="w_op"><option value="credit">Credit</option><option value="bonus">Bonus</option><option value="debit">Debit</option></select>
-      <div style="margin-top:10px"><button id="applyWallet" class="btn">Apply</button></div>
-      <div id="walletMsg" class="small" style="margin-top:8px"></div>
-    </div>
-
-  </main>
+    </main>
+  </div>
 
 <script>
-const USERS_KEY='avsk_users', SESSION_KEY='avsk_session', PRODUCTS_KEY='avsk_products';
-const $=s=>document.querySelector(s);
-function read(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function money(n){return '₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2})}
-function esc(s){return String(s||'')}
+/*
+Admin access control (frontend-only).
+- On load, modal asks for admin password "Rishu@123".
+- If match: set sessionStorage 'avsk_admin_unlocked' = 'true' and show admin UI.
+- If cancelled or wrong: redirect to auth.html after showing message.
+Note: This is client-side-only and NOT secure for production.
+*/
+const ADMIN_PASSWORD = 'Rishu@123';
+const USERS_KEY = 'avsk_users';
+const SESSION_KEY = 'avsk_session';
+const PRODUCTS_KEY = 'avsk_products';
 
-// protect admin
-const session = read(SESSION_KEY, null); const users = read(USERS_KEY, {});
-if(!session || !users[session.email] || users[session.email].role !== 'admin'){ location.replace('auth.html'); throw new Error('not-authorized'); }
-const admin = users[session.email];
+const $ = s => document.querySelector(s);
 
-let editProdId = null;
+function read(k,d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
+function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 
-function renderProducts(){ const ps = read(PRODUCTS_KEY, []); $('#products').innerHTML = ps.length? ps.map(p=>`<tr data-id="${esc(p.id)}"><td>${esc(p.name)}</td><td>${esc(p.commissionLabel||money(p.commission))}</td><td><a href="${esc(p.url)}" target="_blank">Open</a></td><td><button class="btn gray" data-edit="${esc(p.id)}">Edit</button> <button class="btn" data-delete="${esc(p.id)}" style="background:#ef4444">Delete</button></td></tr>`).join('') : '<tr><td colspan="4" class="small">No products</td></tr>'; }
+function requireSessionRedirect(){
+  const s = read(SESSION_KEY, null);
+  const users = read(USERS_KEY, {});
+  if(!s || !users[s.email]) { location.replace('auth.html'); return false; }
+  return true;
+}
 
-function renderUsers(){ const us = read(USERS_KEY, {}); const partners = Object.values(us).filter(u=>u.role==='partner'); $('#users').innerHTML = partners.length ? partners.map(u=>`<tr data-email="${esc(u.email)}"><td>${esc(u.email)}</td><td>${money(u.balance)}</td><td>${u.kyc&&u.kyc.verified?'<strong style="color:green">Verified</strong>':'<span style="color:#b45309">'+esc(u.kyc?.status||'not submitted')+'</span>'}</td><td><button class="btn" data-view="${esc(u.email)}">View</button> <button class="btn" data-verify="${esc(u.email)}">Verify</button> <button class="btn gray" data-reject="${esc(u.email)}">Reject</button></td></tr>`).join('') : '<tr><td colspan="4" class="small">No partners</td></tr>'; }
+// if admin unlocked in this tab/session, skip modal
+if(sessionStorage.getItem('avsk_admin_unlocked') === 'true'){
+  initAdminUI();
+} else {
+  // must have a valid session to proceed to admin prompt
+  if(!requireSessionRedirect()) throw new Error('redirecting to auth');
+  $('#pwModal').classList.remove('hidden');
+}
 
-// product actions
-$('#products').addEventListener('click', (e)=>{ const tr = e.target.closest('tr'); if(!tr) return; const id = tr.dataset.id; if(e.target.dataset.edit){ const ps = read(PRODUCTS_KEY, []); const p = ps.find(x=>x.id===id); if(p){ editProdId = id; $('#prodTitle').textContent='Edit product'; $('#p_name').value=p.name; $('#p_comm').value=p.commission; $('#p_label').value=p.commissionLabel||''; $('#p_url').value=p.url; } } else if(e.target.dataset.delete){ if(!confirm('Delete product?')) return; const ps = read(PRODUCTS_KEY, []).filter(x=>x.id!==id); save(PRODUCTS_KEY, ps); renderProducts(); } });
+// modal actions
+$('#pwSubmit').addEventListener('click', ()=>{
+  const v = $('#adminPw').value || '';
+  if(v === ADMIN_PASSWORD){
+    sessionStorage.setItem('avsk_admin_unlocked', 'true');
+    $('#pwMsg').textContent = '';
+    $('#pwModal').classList.add('hidden');
+    initAdminUI();
+  } else {
+    $('#pwMsg').textContent = 'Incorrect password.';
+    setTimeout(()=>{ $('#pwMsg').textContent = ''; }, 3000);
+  }
+});
+$('#pwCancel').addEventListener('click', ()=> {
+  // block access and redirect to auth.html
+  alert('Admin access cancelled.');
+  sessionStorage.removeItem('avsk_admin_unlocked');
+  location.replace('auth.html');
+});
 
-$('#saveProd').addEventListener('click', ()=>{ const name = $('#p_name').value.trim(); const commission = Number($('#p_comm').value); const label = $('#p_label').value.trim(); const url = $('#p_url').value.trim(); if(!name || !Number.isFinite(commission) || commission < 0 || !/^https?:\/\//i.test(url)){ $('#prodMsg').textContent = 'Enter valid details and http(s) URL.'; return; } const ps = read(PRODUCTS_KEY, []); const id = editProdId || crypto.randomUUID(); const p = { id, name, commission, commissionLabel: label || money(commission), url, updatedAt: Date.now() }; const next = editProdId ? ps.map(x=>x.id===id?p:x) : [...ps,p]; save(PRODUCTS_KEY, next); $('#prodMsg').textContent='Saved.'; editProdId = null; $('#prodTitle').textContent='Add product'; $('#p_name').value=''; $('#p_comm').value=''; $('#p_label').value=''; $('#p_url').value=''; renderProducts(); });
+function initAdminUI(){
+  $('#adminUI').classList.remove('hidden');
+  renderProducts();
+  renderUsers();
+}
 
-$('#clearProd').addEventListener('click', ()=>{ editProdId=null; $('#prodTitle').textContent='Add product'; $('#p_name').value=''; $('#p_comm').value=''; $('#p_label').value=''; $('#p_url').value=''; $('#prodMsg').textContent=''; });
+// Product management using localStorage
+function idGen(){ return 'p-'+Math.random().toString(36).slice(2,9); }
+$('#saveProd').addEventListener('click', ()=>{
+  const name = $('#prodName').value.trim();
+  const commission = Number($('#prodCommission').value);
+  const label = $('#prodLabel').value.trim();
+  const url = $('#prodUrl').value.trim();
+  if(!name || !url || isNaN(commission) || commission < 0){ $('#prodMsg').textContent = 'Enter valid name, commission and URL.'; return; }
+  const ps = read(PRODUCTS_KEY, []);
+  const id = $('#prodName').dataset.editId || idGen();
+  const product = { id, name, commission, commissionLabel: label || ('₹'+Number(commission).toLocaleString()), url, updatedAt: Date.now() };
+  const next = ps.filter(p=>p.id !== id).concat([product]);
+  save(PRODUCTS_KEY, next);
+  $('#prodMsg').textContent = 'Saved.';
+  $('#prodName').value=''; $('#prodCommission').value=''; $('#prodLabel').value=''; $('#prodUrl').value=''; delete $('#prodName').dataset.editId;
+  renderProducts();
+  // inform others
+  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(next));
+});
+$('#clearProd').addEventListener('click', ()=>{ $('#prodName').value=''; $('#prodCommission').value=''; $('#prodLabel').value=''; $('#prodUrl').value=''; delete $('#prodName').dataset.editId; $('#prodMsg').textContent=''; });
 
-// users table actions
-$('#users').addEventListener('click', (e)=>{ const email = e.target.dataset.view||e.target.dataset.verify||e.target.dataset.reject; if(!email) return; const us = read(USERS_KEY, {}); const u = us[email]; if(e.target.dataset.view){ // show details
-  let details = `User: ${u.email}\nName: ${u.name}\nBalance: ${u.balance}\nUPI: ${u.profile?.upi || ''}\nBank: ${u.profile?.bankName || ''} (${u.profile?.ifsc || ''})\nAccount(last4): ${u.profile?.bankAccount?('****'+String(u.profile.bankAccount).slice(-4)) : ''}\nKYC status: ${u.kyc?.status||'n/a'}`;
-  if(u.kyc && u.kyc.documents){ details += '\n\nKYC documents available (open in new tab if needed).'; }
-  alert(details);
- } else if(e.target.dataset.verify){ u.kyc = u.kyc || {}; u.kyc.verified = true; u.kyc.status = 'verified'; u.kyc.verifiedBy = admin.email; u.kyc.verifiedAt = Date.now(); us[email] = u; save(USERS_KEY, us); renderUsers(); alert('KYC verified for '+email); } else if(e.target.dataset.reject){ u.kyc = u.kyc || {}; u.kyc.verified = false; u.kyc.status = 'rejected'; u.kyc.reviewedAt = Date.now(); us[email] = u; save(USERS_KEY, us); renderUsers(); alert('KYC rejected for '+email); } });
+function renderProducts(){
+  const ps = read(PRODUCTS_KEY, []);
+  // not displayed in admin page list; but could be implemented if desired.
+}
 
-// wallet apply
-$('#applyWallet').addEventListener('click', ()=>{ const email = $('#w_email').value.trim().toLowerCase(); const amt = Number($('#w_amount').value); const op = $('#w_op').value; const us = read(USERS_KEY, {}); const u = us[email]; if(!u || u.role !== 'partner' || !amt || amt <= 0){ $('#walletMsg').textContent = 'Enter existing partner and positive amount.'; return; } if(op === 'debit' && u.balance < amt){ $('#walletMsg').textContent = 'Insufficient balance for debit.'; return; } const signed = op === 'debit' ? -amt : amt; u.balance = Number((u.balance + signed).toFixed(2)); u.transactions = u.transactions || []; u.transactions.push({ date: Date.now(), amount: signed, description: op === 'bonus' ? 'Admin bonus' : op === 'debit' ? 'Admin debit' : 'Admin credit' }); us[email] = u; save(USERS_KEY, us); $('#walletMsg').textContent = 'Wallet updated.'; renderUsers(); });
+// Users & KYC
+function renderUsers(){
+  const users = read(USERS_KEY, {});
+  const rows = Object.values(users).filter(u=>u.role === 'partner');
+  const tbody = $('#usersTable');
+  tbody.innerHTML = rows.length ? rows.map(u=>`
+    <tr>
+      <td class="py-2">${u.email}</td>
+      <td class="py-2">₹${Number(u.balance||0).toFixed(2)}</td>
+      <td class="py-2">${u.kyc?.verified ? '<span class="text-green-600 font-semibold">Verified</span>' : '<span class="text-amber-600">'+(u.kyc?.status||'not submitted')+'</span>'}</td>
+      <td class="py-2">
+        <button class="px-2 py-1 bg-slate-200 rounded" data-view="${u.email}">View</button>
+        <button class="px-2 py-1 bg-green-600 text-white rounded" data-verify="${u.email}">Verify</button>
+        <button class="px-2 py-1 bg-amber-300 rounded" data-reject="${u.email}">Reject</button>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="4" class="py-2 text-slate-500">No partners</td></tr>';
+}
 
-// nav
-$('#logout').addEventListener('click', ()=>{ localStorage.removeItem(SESSION_KEY); location.href='auth.html'; }); $('#toHome').addEventListener('click', ()=>{ location.href='auth.html'; });
+$('#usersTable').addEventListener('click', (e)=>{
+  const view = e.target.dataset.view, verify = e.target.dataset.verify, reject = e.target.dataset.reject;
+  if(view){ const users = read(USERS_KEY, {}); const u = users[view]; alert(JSON.stringify(u, null, 2)); }
+  if(verify){ const users = read(USERS_KEY, {}); if(!users[verify]) return; users[verify].kyc = users[verify].kyc || {}; users[verify].kyc.verified = true; users[verify].kyc.status = 'verified'; users[verify].kyc.verifiedAt = Date.now(); save(USERS_KEY, users); renderUsers(); alert('KYC verified'); }
+  if(reject){ const users = read(USERS_KEY, {}); if(!users[reject]) return; users[reject].kyc = users[reject].kyc || {}; users[reject].kyc.verified = false; users[reject].kyc.status = 'rejected'; users[reject].kyc.reviewedAt = Date.now(); save(USERS_KEY, users); renderUsers(); alert('KYC rejected'); }
+});
 
-renderProducts(); renderUsers(); window.addEventListener('storage', (e)=>{ if([USERS_KEY, PRODUCTS_KEY].includes(e.key)) { renderProducts(); renderUsers(); } });
+// Wallet ops
+$('#applyWallet').addEventListener('click', ()=>{
+  const email = $('#w_email').value.trim().toLowerCase();
+  const amt = Number($('#w_amount').value);
+  const op = $('#w_op').value;
+  const users = read(USERS_KEY, {});
+  if(!users[email]){ $('#walletMsg').textContent = 'Partner not found'; setTimeout(()=>$('#walletMsg').textContent='',3000); return; }
+  if(!amt || amt <= 0){ $('#walletMsg').textContent = 'Enter positive amount'; setTimeout(()=>$('#walletMsg').textContent='',3000); return; }
+  const signed = op === 'debit' ? -amt : amt;
+  users[email].balance = Number(((users[email].balance || 0) + signed).toFixed(2));
+  users[email].transactions = users[email].transactions || [];
+  users[email].transactions.push({ date: Date.now(), amount: signed, description: op === 'bonus' ? 'Admin bonus' : op === 'debit' ? 'Admin debit' : 'Admin credit' });
+  save(USERS_KEY, users);
+  $('#walletMsg').textContent = 'Wallet updated';
+  setTimeout(()=>$('#walletMsg').textContent='',3000);
+  renderUsers();
+});
+
+// logout
+$('#logout').addEventListener('click', ()=>{ localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem('avsk_admin_unlocked'); location.href='auth.html'; });
+
+// storage listener to update lists if other tabs modify data
+window.addEventListener('storage', (e)=>{ if([USERS_KEY, PRODUCTS_KEY].includes(e.key)) renderUsers(); });
 </script>
 </body>
 </html>

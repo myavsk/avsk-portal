@@ -1,146 +1,146 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AVSK Portal — Login / Register</title>
-<style>
-:root{--p:#2563eb;--muted:#64748b}
-*{box-sizing:border-box}body{font-family:system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(135deg,#eff6ff,#f8fafc);margin:0;min-height:100vh;display:grid;place-items:center;padding:20px}
-.box{width:min(760px,100%);background:#fff;border:1px solid #e6eefb;border-radius:12px;padding:26px;box-shadow:0 10px 30px rgba(2,6,23,0.06)}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.brand{font-weight:800;color:var(--p)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:block;font-weight:700;margin-top:12px}
-input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #d1e3fb}
-.btn{background:var(--p);color:#fff;padding:10px 14px;border:0;border-radius:8px;cursor:pointer;margin-top:14px}
-.btn.ghost{background:#eef6ff;color:var(--p)}
-.switch{background:#fff;border:1px solid #d1e3fb;padding:8px 12px;border-radius:8px;cursor:pointer}
-.msg{margin-top:10px;color:#b91c1c;min-height:20px}
-.small{color:var(--muted);font-size:13px;margin-top:8px}
-@media(max-width:720px){.form-row{grid-template-columns:1fr}}
-</style>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AVSK Portal — Login / Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="box">
-    <div class="header">
-      <div class="brand">AVSK Portal</div>
-      <div>
-        <button id="toggleModeBtn" class="switch">Create account</button>
-      </div>
+<body class="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+  <div class="w-full max-w-xl bg-white rounded-xl shadow p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold text-slate-800">AVSK Portal</h1>
+      <button id="toggleMode" class="text-sm text-blue-600">Create account</button>
     </div>
 
-    <form id="authForm">
-      <div id="nameWrap" style="display:none">
-        <label>Full name</label>
-        <input id="name" autocomplete="name" />
+    <form id="authForm" class="space-y-3">
+      <div id="nameWrap" class="hidden">
+        <label class="text-sm font-semibold">Full name</label>
+        <input id="name" class="w-full mt-1 p-2 border rounded" />
       </div>
 
-      <div class="form-row" id="kycWrap" style="display:none">
+      <div id="kycWrap" class="grid grid-cols-2 gap-2 hidden">
         <div>
-          <label>Aadhaar (last 4)</label>
-          <input id="aadhar" inputmode="numeric" maxlength="4" placeholder="1234" />
+          <label class="text-sm font-semibold">Aadhaar (last 4)</label>
+          <input id="aadhar" maxlength="4" class="w-full mt-1 p-2 border rounded" placeholder="1234" />
         </div>
         <div>
-          <label>PAN</label>
-          <input id="pan" maxlength="10" placeholder="ABCDE1234F" />
-        </div>
-      </div>
-
-      <div class="form-row" id="bankWrap" style="display:none">
-        <div>
-          <label>Bank name</label>
-          <input id="bankName" placeholder="State Bank" />
-        </div>
-        <div>
-          <label>IFSC</label>
-          <input id="ifsc" placeholder="SBIN0001234" />
+          <label class="text-sm font-semibold">PAN</label>
+          <input id="pan" maxlength="10" class="w-full mt-1 p-2 border rounded" placeholder="ABCDE1234F" />
         </div>
       </div>
 
-      <div id="accWrap" style="display:none">
-        <label>Bank account number</label>
-        <input id="bankAccount" inputmode="numeric" placeholder="12341234" />
+      <div id="bankWrap" class="grid grid-cols-2 gap-2 hidden">
+        <div>
+          <label class="text-sm font-semibold">Bank name</label>
+          <input id="bankName" class="w-full mt-1 p-2 border rounded" placeholder="State Bank" />
+        </div>
+        <div>
+          <label class="text-sm font-semibold">IFSC</label>
+          <input id="ifsc" class="w-full mt-1 p-2 border rounded" placeholder="SBIN0001234" />
+        </div>
       </div>
 
-      <label>Email</label>
-      <input id="email" type="email" required autocomplete="email" />
-
-      <label>Password</label>
-      <input id="password" type="password" required minlength="8" autocomplete="current-password" />
-
-      <div id="confirmWrap" style="display:none">
-        <label>Confirm password</label>
-        <input id="confirm" type="password" minlength="8" />
+      <div id="accWrap" class="hidden">
+        <label class="text-sm font-semibold">Bank account number</label>
+        <input id="bankAccount" class="w-full mt-1 p-2 border rounded" />
       </div>
 
-      <button id="submitBtn" class="btn" type="submit">Sign in</button>
+      <div>
+        <label class="text-sm font-semibold">Email</label>
+        <input id="email" type="email" required class="w-full mt-1 p-2 border rounded" />
+      </div>
+
+      <div>
+        <label class="text-sm font-semibold">Password</label>
+        <input id="password" type="password" required minlength="6" class="w-full mt-1 p-2 border rounded" />
+      </div>
+
+      <div id="confirmWrap" class="hidden">
+        <label class="text-sm font-semibold">Confirm password</label>
+        <input id="confirm" type="password" minlength="6" class="w-full mt-1 p-2 border rounded" />
+      </div>
+
+      <div class="flex gap-2">
+        <button id="submitBtn" class="flex-1 bg-blue-600 text-white p-2 rounded font-semibold">Sign in</button>
+        <a href="index.html" class="p-2 rounded border text-sm flex items-center justify-center">Home</a>
+      </div>
+
+      <p id="msg" class="text-sm text-red-600 min-h-[1.25rem]"></p>
+      <p class="text-xs text-slate-500">Partners must register to create referral links. Admins are set separately.</p>
     </form>
-
-    <div class="msg" id="msg"></div>
-    <div class="small">Partners must register to generate referral links and receive leads/payments. Admin accounts are created separately via promotion.</div>
   </div>
 
 <script>
-// Keys
+/*
+Frontend-only auth using localStorage.
+Data model:
+- avsk_users: { [email]: { name, email, password, role, balance, referralCode, profile, kyc, transactions, leadsList, clicks, leads } }
+- avsk_session: { email, token, issued }
+This is demo-only. LocalStorage can be modified by users.
+*/
 const USERS_KEY = 'avsk_users';
 const SESSION_KEY = 'avsk_session';
 
-const $ = s => document.querySelector(s);
-
-function read(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
-function save(key, v){ localStorage.setItem(key, JSON.stringify(v)); }
-
-// crypto helpers
-function hex(buf){ return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
-async function digest(text){ return hex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))); }
-async function hashPassword(password, salt){ const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), {name:'PBKDF2'}, false, ['deriveBits']); const derived = await crypto.subtle.deriveBits({name:'PBKDF2', salt: new TextEncoder().encode(salt), iterations:140000, hash:'SHA-256'}, key, 256); return hex(derived); }
-function randHex(len=16){ const a=new Uint8Array(len); crypto.getRandomValues(a); return hex(a); }
-function token(){ return randHex(24); }
-
+const $ = sel => document.querySelector(sel);
 let registerMode = false;
-function setMode(){ registerMode = !registerMode; $('#nameWrap').style.display = registerMode ? 'block' : 'none'; $('#confirmWrap').style.display = registerMode ? 'block' : 'none'; $('#kycWrap').style.display = registerMode ? 'grid' : 'none'; $('#bankWrap').style.display = registerMode ? 'grid' : 'none'; $('#accWrap').style.display = registerMode ? 'block' : 'none'; $('#submitBtn').textContent = registerMode ? 'Create account' : 'Sign in'; $('#toggleModeBtn').textContent = registerMode ? 'Have an account? Sign in' : 'Create account'; $('#msg').textContent=''; }
-$('#toggleModeBtn').addEventListener('click', setMode);
 
-// form submit
-$('#authForm').addEventListener('submit', async (e) => {
+function read(k, def){ try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch(e){ return def; } }
+function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function randToken(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
+
+$('#toggleMode').addEventListener('click', ()=> {
+  registerMode = !registerMode;
+  $('#nameWrap').classList.toggle('hidden', !registerMode);
+  $('#confirmWrap').classList.toggle('hidden', !registerMode);
+  $('#kycWrap').classList.toggle('hidden', !registerMode);
+  $('#bankWrap').classList.toggle('hidden', !registerMode);
+  $('#accWrap').classList.toggle('hidden', !registerMode);
+  $('#submitBtn').textContent = registerMode ? 'Create account' : 'Sign in';
+  $('#toggleMode').textContent = registerMode ? 'Have an account? Sign in' : 'Create account';
+  $('#msg').textContent = '';
+});
+
+$('#authForm').addEventListener('submit', (e) => {
   e.preventDefault();
   $('#msg').textContent = '';
   const email = $('#email').value.trim().toLowerCase();
   const password = $('#password').value;
-  if (!email || password.length < 8) { $('#msg').textContent = 'Enter a valid email and a password (8+ chars).'; return; }
+  if(!email || password.length < 6){ $('#msg').textContent = 'Enter valid email & password (6+ chars).'; return; }
   const users = read(USERS_KEY, {});
-
-  if (registerMode) {
+  if(registerMode){
     const name = $('#name').value.trim();
-    if (!name) { $('#msg').textContent = 'Please enter your full name.'; return; }
-    if (password !== $('#confirm').value) { $('#msg').textContent = 'Passwords do not match.'; return; }
-    if (users[email]) { $('#msg').textContent = 'An account with this email already exists.'; return; }
-
-    const salt = randHex(16);
-    const hash = await hashPassword(password, salt);
-    const referralCode = (await digest(email)).slice(0,12);
-
+    if(!name){ $('#msg').textContent = 'Please enter full name.'; return; }
+    if(password !== $('#confirm').value){ $('#msg').textContent = 'Passwords do not match.'; return; }
+    if(users[email]){ $('#msg').textContent = 'Account exists. Please login.'; return; }
+    const referralCode = 'REF' + Math.random().toString(36).slice(2,10).toUpperCase();
     users[email] = {
-      email, name, salt, hash, role: 'partner', balance: 0, referralCode, clicks:0, leads:0, leadsList:[], transactions:[], createdAt: Date.now(),
-      profile: { upi:'', bankName:'', ifsc:'', bankAccount:'', createdAt: Date.now() },
-      kyc: { aadharLast4: $('#aadhar').value.trim(), pan: $('#pan').value.trim().toUpperCase(), documents: {}, status:'pending', verified:false }
+      email, name, password, role: 'partner',
+      balance: 0, referralCode, clicks:0, leads:0, leadsList: [], transactions: [],
+      profile: { upi:'', bankName:'', ifsc:'', bankAccount:'' },
+      kyc: { aadharLast4: $('#aadhar').value.trim(), pan: $('#pan').value.trim().toUpperCase(), documents: {}, status: 'pending', verified: false }
     };
     save(USERS_KEY, users);
-
-    // create session and go to dashboard
-    save(SESSION_KEY, { email, token: token(), issued: Date.now() });
-    location.href = 'dashboard.html';
+    save(SESSION_KEY, { email, token: randToken(), issued: Date.now() });
+    window.location.href = 'dashboard.html';
     return;
+  } else {
+    const user = users[email];
+    if(!user || user.password !== password){ $('#msg').textContent = 'Invalid credentials.'; return; }
+    save(SESSION_KEY, { email, token: randToken(), issued: Date.now() });
+    // send admin to admin.html only if they are admin? keep behavior: redirect according to role
+    window.location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
   }
-
-  // login
-  const user = users[email];
-  if (!user) { $('#msg').textContent = 'Invalid credentials.'; return; }
-  const computed = await hashPassword(password, user.salt);
-  if (computed !== user.hash) { $('#msg').textContent = 'Invalid credentials.'; return; }
-  save(SESSION_KEY, { email, token: token(), issued: Date.now() });
-  location.href = user.role === 'admin' ? 'admin.html' : 'dashboard.html';
 });
 
-// quick redirect if session exists
-(function(){ const s = read(SESSION_KEY, null); const users = read(USERS_KEY, {}); if (s && users[s.email]) { location.href = users[s.email].role === 'admin' ? 'admin.html' : 'dashboard.html'; } })();
+// auto-redirect if session exists
+(function(){
+  const s = read(SESSION_KEY, null);
+  const users = read(USERS_KEY, {});
+  if(s && users[s.email]) {
+    window.location.href = users[s.email].role === 'admin' ? 'admin.html' : 'dashboard.html';
+  }
+})();
 </script>
 </body>
 </html>
