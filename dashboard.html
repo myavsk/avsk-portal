@@ -21,39 +21,34 @@
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8 flex justify-between items-center">
             <div>
                 <h2 id="welcome-msg" class="text-2xl font-bold text-slate-800 mb-1">Welcome, Partner! 👋</h2>
-                <p class="text-slate-600 text-sm">Promote products using your unique link and grow your wallet balance.</p>
+                <p class="text-slate-600 text-sm">Share your product referral links below to earn commissions.</p>
             </div>
             <div>
                 <a href="admin.html" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-700">⚙️ Admin / Wallet Panel</a>
             </div>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-2">🔗 Your Referral Link</h3>
-                <div class="flex gap-2">
-                    <input type="text" id="ref-link" readonly class="w-full px-3 py-2 border rounded-lg bg-slate-50 text-slate-600 text-xs" value="https://myavsk.github.io/avsk-portal/auth.html?ref=AVSK_PARTNER">
-                    <button onclick="copyLink()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">Copy</button>
-                </div>
-            </div>
+        <div class="grid md:grid-cols-3 gap-6 mb-10">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-800 mb-2">💳 Wallet Balance</h3>
                 <p id="wallet-balance" class="text-3xl font-extrabold text-green-600">₹0.00</p>
-                <p class="text-xs text-slate-500 mt-1">Updated by Admin</p>
+                <p class="text-xs text-slate-500 mt-1">Updates when admin approves leads</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-2">📊 Total Clicks & Leads</h3>
-                <div class="flex justify-between text-center mt-3">
-                    <div>
-                        <p class="text-slate-500 text-xs">Clicks</p>
-                        <p class="text-xl font-bold text-blue-600">24</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-500 text-xs">Converted Leads</p>
-                        <p class="text-xl font-bold text-green-600">2</p>
-                    </div>
-                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">📊 Total Clicks</h3>
+                <p id="total-clicks" class="text-3xl font-extrabold text-blue-600">0</p>
+                <p class="text-xs text-slate-500 mt-1">On your links</p>
             </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 mb-2">✅ Converted Leads</h3>
+                <p id="total-leads" class="text-3xl font-extrabold text-purple-600">0</p>
+                <p class="text-xs text-slate-500 mt-1">Successful payouts</p>
+            </div>
+        </div>
+
+        <h3 class="text-2xl font-bold text-slate-800 mb-6">Your Product Referral Links & Commissions</h3>
+        <div id="partner-products-grid" class="grid md:grid-cols-2 gap-6">
+            <!-- Products loaded dynamically -->
         </div>
     </main>
 
@@ -62,18 +57,47 @@
             window.location.href = 'auth.html';
         }
 
-        // Load user data and wallet
-        const userData = JSON.parse(localStorage.getItem('avsk_user') || '{"name":"Partner"}');
+        const userData = JSON.parse(localStorage.getItem('avsk_user') || '{"name":"Partner", "email":"partner@avsk.com"}');
         document.getElementById('welcome-msg').innerText = `Welcome, ${userData.name}! 👋`;
         
-        // Load wallet balance from localStorage if set by admin
-        const currentWallet = localStorage.getItem('avsk_wallet_balance') || '1500.00';
-        document.getElementById('wallet-balance').innerText = `₹${currentWallet}`;
+        // Fetch user wallet, default starts at 0.00
+        const userWallets = JSON.parse(localStorage.getItem('avsk_user_wallets') || '{}');
+        const currentBal = userWallets[userData.email] !== undefined ? userWallets[userData.email] : 0.00;
+        document.getElementById('wallet-balance').innerText = `₹${parseFloat(currentBal).toFixed(2)}`;
 
-        function copyLink() {
-            const link = document.getElementById('ref-link');
-            link.select();
-            navigator.clipboard.writeText(link.value);
+        const defaultProducts = [
+            { name: "Personal Loan", commission: "₹2,500 per lead", link: "auth.html" },
+            { name: "Instant Credit Card", commission: "₹1,000 per approval", link: "auth.html" },
+            { name: "Zero Balance Savings Account", commission: "₹300 per account", link: "auth.html" }
+        ];
+        let savedProducts = JSON.parse(localStorage.getItem('avsk_products') || JSON.stringify(defaultProducts));
+
+        const grid = document.getElementById('partner-products-grid');
+        grid.innerHTML = '';
+
+        savedProducts.forEach((prod, index) => {
+            const userRefCode = userData.email.split('@')[0].toUpperCase();
+            const personalLink = `https://myavsk.github.io/avsk-portal/auth.html?ref=${userRefCode}_P${index+1}`;
+
+            grid.innerHTML += `
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-xl font-bold text-slate-800">${prod.name}</h4>
+                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">${prod.commission}</span>
+                    </div>
+                    <p class="text-slate-600 text-xs mb-4">Share this unique link to earn commission upon successful completion.</p>
+                    <div class="flex gap-2">
+                        <input type="text" readonly id="link-${index}" class="w-full px-3 py-2 border rounded-lg bg-slate-50 text-slate-600 text-xs" value="${personalLink}">
+                        <button onclick="copyToClipboard('link-${index}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">Copy</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        function copyToClipboard(elementId) {
+            const input = document.getElementById(elementId);
+            input.select();
+            navigator.clipboard.writeText(input.value);
             alert('Referral link copied to clipboard!');
         }
 
