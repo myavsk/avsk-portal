@@ -11,7 +11,7 @@
   <div id="pwModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-md shadow">
       <h2 class="text-xl font-semibold mb-2">Admin access</h2>
-      <p class="text-sm text-slate-600 mb-4">Enter the admin password to open the admin console.</p>
+      <p class="text-sm text-slate-600 mb-4">Enter the admin password to open the admin console. This page is protected by a client-side password only and is intended for demo/admin use.</p>
       <input id="adminPw" type="password" class="w-full p-2 border rounded mb-3" placeholder="Admin password" />
       <div class="flex gap-2">
         <button id="pwSubmit" class="flex-1 bg-blue-600 text-white p-2 rounded">Unlock</button>
@@ -28,7 +28,7 @@
         <div class="text-xl font-bold">AVSK Admin Console</div>
         <div class="flex items-center gap-3">
           <a href="auth.html" class="px-3 py-2 rounded border text-sm">Home</a>
-          <button id="logout" class="px-3 py-2 rounded bg-red-500 text-white text-sm">Logout</button>
+          <button id="logout" class="px-3 py-2 rounded bg-red-500 text-white text-sm">Clear Admin Unlock</button>
         </div>
       </div>
     </header>
@@ -41,7 +41,7 @@
           <input id="prodName" class="w-full p-2 border rounded" />
           <label class="text-xs mt-2">Commission (numeric)</label>
           <input id="prodCommission" type="number" class="w-full p-2 border rounded" />
-          <label class="text-xs mt-2">Commission label</label>
+          <label class="text-xs mt-2">Commission label (optional)</label>
           <input id="prodLabel" class="w-full p-2 border rounded" />
           <label class="text-xs mt-2">Target URL</label>
           <input id="prodUrl" class="w-full p-2 border rounded" placeholder="https://..." />
@@ -54,7 +54,7 @@
 
         <section class="bg-white p-4 rounded shadow">
           <h3 class="font-semibold">Partners & KYC</h3>
-          <div class="mt-3 overflow-auto" style="max-height:420px">
+          <div class="mt-3 overflow-auto" style="max-height:260px">
             <table class="w-full text-sm">
               <thead class="text-slate-500 text-left"><tr><th>Email</th><th>Balance</th><th>KYC</th><th>Actions</th></tr></thead>
               <tbody id="usersTable" class="divide-y"></tbody>
@@ -62,6 +62,16 @@
           </div>
         </section>
       </div>
+
+      <section class="bg-white p-4 rounded shadow mt-4">
+        <h3 class="font-semibold">All products</h3>
+        <div class="mt-3 overflow-auto" style="max-height:260px">
+          <table class="w-full text-sm">
+            <thead class="text-slate-500 text-left"><tr><th>Name</th><th>Commission</th><th>URL</th><th>Actions</th></tr></thead>
+            <tbody id="productsTable" class="divide-y"></tbody>
+          </table>
+        </div>
+      </section>
 
       <section class="bg-white p-4 rounded shadow mt-4">
         <h3 class="font-semibold">Wallet operation</h3>
@@ -85,44 +95,30 @@
 <script>
 /*
 Admin access control (frontend-only).
-- On load, modal asks for admin password "Rishu@123".
-- If match: set sessionStorage 'avsk_admin_unlocked' = 'true' and show admin UI.
-- If cancelled or wrong: redirect to auth.html after showing message.
-Note: This is client-side-only and NOT secure for production.
+- This page is now standalone: it does NOT redirect to auth.html.
+- On load, modal asks for admin password "Rishu@123". On correct entry the admin UI is shown.
+- Cancel simply clears the password field and keeps the modal visible (no redirect).
+- Warning: client-side-only protection. For production, use server-side auth.
 */
 const ADMIN_PASSWORD = 'Rishu@123';
 const USERS_KEY = 'avsk_users';
-const SESSION_KEY = 'avsk_session';
 const PRODUCTS_KEY = 'avsk_products';
 
 const $ = s => document.querySelector(s);
-
 function read(k,d){ try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } }
 function save(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 
-function requireSessionRedirect(){
-  const s = read(SESSION_KEY, null);
-  const users = read(USERS_KEY, {});
-  if(!s || !users[s.email]) { location.replace('auth.html'); return false; }
-  return true;
-}
-
-// if admin unlocked in this tab/session, skip modal
+// If unlocked in this tab, show UI
 if(sessionStorage.getItem('avsk_admin_unlocked') === 'true'){
+  $('#pwModal').style.display = 'none';
   initAdminUI();
-} else {
-  // must have a valid session to proceed to admin prompt
-  if(!requireSessionRedirect()) throw new Error('redirecting to auth');
-  $('#pwModal').classList.remove('hidden');
 }
 
-// modal actions
 $('#pwSubmit').addEventListener('click', ()=>{
-  const v = $('#adminPw').value || '';
+  const v = ($('#adminPw').value || '').trim();
   if(v === ADMIN_PASSWORD){
     sessionStorage.setItem('avsk_admin_unlocked', 'true');
-    $('#pwMsg').textContent = '';
-    $('#pwModal').classList.add('hidden');
+    $('#pwModal').style.display = 'none';
     initAdminUI();
   } else {
     $('#pwMsg').textContent = 'Incorrect password.';
@@ -130,19 +126,19 @@ $('#pwSubmit').addEventListener('click', ()=>{
   }
 });
 $('#pwCancel').addEventListener('click', ()=> {
-  // block access and redirect to auth.html
-  alert('Admin access cancelled.');
-  sessionStorage.removeItem('avsk_admin_unlocked');
-  location.replace('auth.html');
+  // Do not redirect anywhere; keep admin page separate. Just clear input.
+  $('#adminPw').value = '';
+  $('#pwMsg').textContent = 'Admin access cancelled. Page remains locked.';
+  setTimeout(()=>$('#pwMsg').textContent = '', 2500);
 });
 
 function initAdminUI(){
   $('#adminUI').classList.remove('hidden');
-  renderProducts();
   renderUsers();
+  renderProducts();
 }
 
-// Product management using localStorage
+// Product management
 function idGen(){ return 'p-'+Math.random().toString(36).slice(2,9); }
 $('#saveProd').addEventListener('click', ()=>{
   const name = $('#prodName').value.trim();
@@ -151,22 +147,60 @@ $('#saveProd').addEventListener('click', ()=>{
   const url = $('#prodUrl').value.trim();
   if(!name || !url || isNaN(commission) || commission < 0){ $('#prodMsg').textContent = 'Enter valid name, commission and URL.'; return; }
   const ps = read(PRODUCTS_KEY, []);
-  const id = $('#prodName').dataset.editId || idGen();
+  const editId = $('#prodName').dataset.editId;
+  const id = editId || idGen();
   const product = { id, name, commission, commissionLabel: label || ('₹'+Number(commission).toLocaleString()), url, updatedAt: Date.now() };
-  const next = ps.filter(p=>p.id !== id).concat([product]);
+  let next;
+  if(editId){ next = ps.map(p=>p.id===id?product:p); delete $('#prodName').dataset.editId; }
+  else { next = ps.concat([product]); }
   save(PRODUCTS_KEY, next);
-  $('#prodMsg').textContent = 'Saved.';
-  $('#prodName').value=''; $('#prodCommission').value=''; $('#prodLabel').value=''; $('#prodUrl').value=''; delete $('#prodName').dataset.editId;
-  renderProducts();
-  // inform others
+  // persist and notify other tabs/pages
   localStorage.setItem(PRODUCTS_KEY, JSON.stringify(next));
+  $('#prodMsg').textContent = editId ? 'Product updated.' : 'Product added.';
+  setTimeout(()=>$('#prodMsg').textContent = '', 2000);
+  $('#prodName').value=''; $('#prodCommission').value=''; $('#prodLabel').value=''; $('#prodUrl').value='';
+  renderProducts();
 });
+
 $('#clearProd').addEventListener('click', ()=>{ $('#prodName').value=''; $('#prodCommission').value=''; $('#prodLabel').value=''; $('#prodUrl').value=''; delete $('#prodName').dataset.editId; $('#prodMsg').textContent=''; });
 
 function renderProducts(){
   const ps = read(PRODUCTS_KEY, []);
-  // not displayed in admin page list; but could be implemented if desired.
+  const tbody = $('#productsTable');
+  if(ps.length===0){ tbody.innerHTML = '<tr><td colspan="4" class="py-2 text-slate-500">No products</td></tr>'; return; }
+  tbody.innerHTML = ps.map(p=>`<tr>
+    <td class="py-2">${escapeHtml(p.name)}</td>
+    <td class="py-2">${escapeHtml(p.commissionLabel || p.commission)}</td>
+    <td class="py-2"><a class="text-blue-600" href="${escapeAttr(p.url)}" target="_blank">Open</a></td>
+    <td class="py-2">
+      <button class="px-2 py-1 bg-slate-200 rounded" data-edit="${p.id}">Edit</button>
+      <button class="px-2 py-1 bg-red-600 text-white rounded" data-delete="${p.id}">Delete</button>
+    </td>
+  </tr>`).join('');
 }
+
+// product edit/delete handlers
+$('#productsTable').addEventListener('click', (e)=>{
+  const id = e.target.dataset.edit || e.target.dataset.delete;
+  if(!id) return;
+  const ps = read(PRODUCTS_KEY, []);
+  const product = ps.find(x=>x.id===id);
+  if(e.target.dataset.edit){
+    $('#prodName').value = product.name; $('#prodCommission').value = product.commission; $('#prodLabel').value = product.commissionLabel || '';
+    $('#prodUrl').value = product.url; $('#prodName').dataset.editId = product.id;
+    $('#prodMsg').textContent = 'Editing product.';
+    return;
+  }
+  if(e.target.dataset.delete){
+    if(!confirm('Delete product "'+product.name+'"? This cannot be undone.')) return;
+    const next = ps.filter(p=>p.id!==id);
+    save(PRODUCTS_KEY, next);
+    localStorage.setItem(PRODUCTS_KEY, JSON.stringify(next));
+    $('#prodMsg').textContent = 'Product deleted.';
+    setTimeout(()=>$('#prodMsg').textContent = '', 2000);
+    renderProducts();
+  }
+});
 
 // Users & KYC
 function renderUsers(){
@@ -175,7 +209,7 @@ function renderUsers(){
   const tbody = $('#usersTable');
   tbody.innerHTML = rows.length ? rows.map(u=>`
     <tr>
-      <td class="py-2">${u.email}</td>
+      <td class="py-2">${escapeHtml(u.email)}</td>
       <td class="py-2">₹${Number(u.balance||0).toFixed(2)}</td>
       <td class="py-2">${u.kyc?.verified ? '<span class="text-green-600 font-semibold">Verified</span>' : '<span class="text-amber-600">'+(u.kyc?.status||'not submitted')+'</span>'}</td>
       <td class="py-2">
@@ -207,16 +241,22 @@ $('#applyWallet').addEventListener('click', ()=>{
   users[email].transactions = users[email].transactions || [];
   users[email].transactions.push({ date: Date.now(), amount: signed, description: op === 'bonus' ? 'Admin bonus' : op === 'debit' ? 'Admin debit' : 'Admin credit' });
   save(USERS_KEY, users);
+  // notify other pages
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
   $('#walletMsg').textContent = 'Wallet updated';
   setTimeout(()=>$('#walletMsg').textContent='',3000);
   renderUsers();
 });
 
-// logout
-$('#logout').addEventListener('click', ()=>{ localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem('avsk_admin_unlocked'); location.href='auth.html'; });
+// logout/clear admin unlock
+$('#logout').addEventListener('click', ()=>{ sessionStorage.removeItem('avsk_admin_unlocked'); alert('Admin unlock cleared for this tab. Refresh to re-open modal.'); $('#adminPw').value=''; $('#pwModal').style.display = 'block'; $('#adminUI').classList.add('hidden'); });
 
 // storage listener to update lists if other tabs modify data
-window.addEventListener('storage', (e)=>{ if([USERS_KEY, PRODUCTS_KEY].includes(e.key)) renderUsers(); });
+window.addEventListener('storage', (e)=>{ if([USERS_KEY, PRODUCTS_KEY].includes(e.key)) { renderUsers(); renderProducts(); } });
+
+// small helpers
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c]); }
+function escapeAttr(s){ return (s||'').replace(/"/g,'\"'); }
 </script>
 </body>
 </html>
