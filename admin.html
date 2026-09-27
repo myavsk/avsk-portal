@@ -18,8 +18,7 @@
         <!-- View As User / Switcher Section -->
         <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100 mb-8">
             <h2 class="text-xl font-bold text-slate-800 mb-4">👀 View Portal as Partner (Impersonate)</h2>
-            <p class="text-slate-600 text-sm mb-4">Admin can directly switch and view any partner's dashboard and referral link without entering their password.</p>
-            
+            <p class="text-slate-600 text-sm mb-4">Admin can directly switch and view any partner's dashboard and referral links without passwords.</p>
             <div class="flex gap-4">
                 <input type="text" id="target-user-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Enter partner email (e.g. partner@gmail.com)">
                 <button onclick="switchToUserView()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap">Switch View</button>
@@ -31,8 +30,8 @@
             <h2 class="text-xl font-bold text-slate-800 mb-4">💰 Manage Partner Wallet (Add / Deduct / Bonus)</h2>
             <div class="grid md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-slate-700 text-sm font-semibold mb-2">Partner Email / ID</label>
-                    <input type="text" id="admin-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" value="partner@avsk.com">
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Partner Email</label>
+                    <input type="text" id="admin-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="partner@gmail.com">
                 </div>
                 <div>
                     <label class="block text-slate-700 text-sm font-semibold mb-2">Amount (₹)</label>
@@ -40,30 +39,34 @@
                 </div>
             </div>
             <div class="mb-6">
-                <label class="block text-slate-700 text-sm font-semibold mb-2">Reason / Action Type</label>
+                <label class="block text-slate-700 text-sm font-semibold mb-2">Action Type</label>
                 <select id="admin-action-type" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
                     <option value="add">Add Commission (Credit)</option>
                     <option value="bonus">Add Festive/Joining Bonus</option>
-                    <option value="deduct">Deduct Amount (Debit/Adjustment)</option>
+                    <option value="deduct">Deduct Amount (Adjustment)</option>
                 </select>
             </div>
-            <button onclick="updateWallet()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">Update Wallet Balance</button>
+            <button onclick="updateWallet()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">Update Partner Wallet</button>
         </div>
 
         <!-- Product Management Section -->
         <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">🛠️ Add New Financial Product</h2>
-            <p class="text-slate-600 text-sm mb-4">You can configure new products here that will instantly show up on the main portal.</p>
+            <h2 class="text-xl font-bold text-slate-800 mb-4">🛠️ Add New Financial Product & Commission</h2>
+            <p class="text-slate-600 text-sm mb-4">Configure products so partners get their unique affiliate links and commission rates automatically.</p>
             <div class="space-y-4">
                 <div>
                     <label class="block text-slate-700 text-sm font-semibold mb-2">Product Name</label>
                     <input type="text" id="prod-name" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g. Business Loan">
                 </div>
                 <div>
-                    <label class="block text-slate-700 text-sm font-semibold mb-2">Commission Details</label>
-                    <input type="text" id="prod-commission" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g. ₹5,000 per lead">
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Commission Rate</label>
+                    <input type="text" id="prod-commission" class="w-full px-4 py-2 border rounded-lg" placeholder="e.g. ₹2,000 per approval">
                 </div>
-                <button onclick="addNewProduct()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save Product</button>
+                <div>
+                    <label class="block text-slate-700 text-sm font-semibold mb-2">Target URL / Landing Page</label>
+                    <input type="text" id="prod-link" class="w-full px-4 py-2 border rounded-lg" placeholder="https://bankwebsite.com/apply">
+                </div>
+                <button onclick="addNewProduct()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700">Save & Publish Product</button>
             </div>
         </div>
     </main>
@@ -77,21 +80,22 @@
             }
             localStorage.setItem('avsk_logged_in', 'true');
             localStorage.setItem('avsk_user', JSON.stringify({ name: email.split('@')[0], email: email }));
-            
-            alert(`Switched successfully to view as ${email}! Redirecting to dashboard...`);
+            alert(`Switched successfully to view as ${email}! Redirecting...`);
             window.location.href = 'dashboard.html';
         }
 
         function updateWallet() {
+            const email = document.getElementById('admin-email').value;
             const amount = document.getElementById('admin-amount').value;
             const type = document.getElementById('admin-action-type').value;
             
-            if(!amount) {
-                alert('Please enter an amount!');
+            if(!email || !amount) {
+                alert('Please enter both partner email and amount!');
                 return;
             }
 
-            let currentBal = parseFloat(localStorage.getItem('avsk_wallet_balance') || '1500.00');
+            let userWallets = JSON.parse(localStorage.getItem('avsk_user_wallets') || '{}');
+            let currentBal = userWallets[email] !== undefined ? parseFloat(userWallets[email]) : 0.00;
             let numAmount = parseFloat(amount);
 
             if(type === 'deduct') {
@@ -100,20 +104,35 @@
                 currentBal += numAmount;
             }
 
-            localStorage.setItem('avsk_wallet_balance', currentBal.toFixed(2));
-            alert(`Wallet updated successfully! New Balance: ₹${currentBal.toFixed(2)}`);
+            userWallets[email] = currentBal;
+            localStorage.setItem('avsk_user_wallets', JSON.stringify(userWallets));
+            alert(`Wallet updated for ${email}! New Balance: ₹${currentBal.toFixed(2)}`);
         }
 
         function addNewProduct() {
             const name = document.getElementById('prod-name').value;
-            const comm = document.getElementById('prod-commission').value;
-            if(!name) {
-                alert('Please enter product name');
+            const commission = document.getElementById('prod-commission').value;
+            const link = document.getElementById('prod-link').value;
+
+            if(!name || !commission) {
+                alert('Please fill product name and commission details!');
                 return;
             }
-            alert(`Product "${name}" saved successfully! It will reflect on the portal.`);
+
+            const defaultProducts = [
+                { name: "Personal Loan", commission: "₹2,500 per lead", link: "auth.html" },
+                { name: "Instant Credit Card", commission: "₹1,000 per approval", link: "auth.html" },
+                { name: "Zero Balance Savings Account", commission: "₹300 per account", link: "auth.html" }
+            ];
+
+            let savedProducts = JSON.parse(localStorage.getItem('avsk_products') || JSON.stringify(defaultProducts));
+            savedProducts.push({ name, commission, link: link || 'auth.html' });
+            localStorage.setItem('avsk_products', JSON.stringify(savedProducts));
+
+            alert(`Product "${name}" added successfully with commission "${commission}"!`);
             document.getElementById('prod-name').value = '';
             document.getElementById('prod-commission').value = '';
+            document.getElementById('prod-link').value = '';
         }
     </script>
 </body>
