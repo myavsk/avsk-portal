@@ -10,34 +10,47 @@
     <header class="bg-blue-600 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-2xl font-bold">AVSK Partner Dashboard</h1>
-            <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">Logout</button>
+            <div class="space-x-4 flex items-center">
+                <a href="index.html" class="text-white hover:underline text-sm">Home</a>
+                <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition">Logout</button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-10">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8">
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Welcome, Partner! 👋</h2>
-            <p class="text-slate-600">Here is your unique referral link to promote financial products and earn commissions.</p>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8 flex justify-between items-center">
+            <div>
+                <h2 id="welcome-msg" class="text-2xl font-bold text-slate-800 mb-1">Welcome, Partner! 👋</h2>
+                <p class="text-slate-600 text-sm">Promote products using your unique link and grow your wallet balance.</p>
+            </div>
+            <div>
+                <a href="admin.html" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-700">⚙️ Admin / Wallet Panel</a>
+            </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-4">🔗 Your Referral Link</h3>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">🔗 Your Referral Link</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="ref-link" readonly class="w-full px-3 py-2 border rounded-lg bg-slate-50 text-slate-600 text-sm" value="https://myavsk.github.io/avsk-portal/auth.html?ref=AVSK99">
-                    <button onclick="copyLink()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">Copy</button>
+                    <input type="text" id="ref-link" readonly class="w-full px-3 py-2 border rounded-lg bg-slate-50 text-slate-600 text-xs" value="https://myavsk.github.io/avsk-portal/auth.html?ref=AVSK_PARTNER">
+                    <button onclick="copyLink()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700">Copy</button>
                 </div>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800 mb-4">📊 Quick Stats</h3>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <p class="text-slate-500 text-sm">Total Clicks</p>
-                        <p class="text-2xl font-bold text-blue-600">12</p>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">💳 Wallet Balance</h3>
+                <p id="wallet-balance" class="text-3xl font-extrabold text-green-600">₹0.00</p>
+                <p class="text-xs text-slate-500 mt-1">Updated by Admin</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 mb-2">📊 Total Clicks & Leads</h3>
+                <div class="flex justify-between text-center mt-3">
+                    <div>
+                        <p class="text-slate-500 text-xs">Clicks</p>
+                        <p class="text-xl font-bold text-blue-600">24</p>
                     </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <p class="text-slate-500 text-sm">Total Earnings</p>
-                        <p class="text-2xl font-bold text-green-600">₹0.00</p>
+                    <div>
+                        <p class="text-slate-500 text-xs">Converted Leads</p>
+                        <p class="text-xl font-bold text-green-600">2</p>
                     </div>
                 </div>
             </div>
@@ -48,6 +61,14 @@
         if(localStorage.getItem('avsk_logged_in') !== 'true') {
             window.location.href = 'auth.html';
         }
+
+        // Load user data and wallet
+        const userData = JSON.parse(localStorage.getItem('avsk_user') || '{"name":"Partner"}');
+        document.getElementById('welcome-msg').innerText = `Welcome, ${userData.name}! 👋`;
+        
+        // Load wallet balance from localStorage if set by admin
+        const currentWallet = localStorage.getItem('avsk_wallet_balance') || '1500.00';
+        document.getElementById('wallet-balance').innerText = `₹${currentWallet}`;
 
         function copyLink() {
             const link = document.getElementById('ref-link');
